@@ -3,7 +3,7 @@ const bodyParser = require('body-parser')
 const app = express()
 require('dotenv').config()
 const { register, login } = require('./middleware/auth')
-const { createAnnonce, listAnnonce } = require('./middleware/annonce')
+const { createAnnonce, listAnnonce, patchAnnonce } = require('./middleware/annonce')
 const { createPret, listPret } = require('./middleware/pret')
 const { createEmprunt , listEmprunt } = require('./middleware/emprunt')
 
@@ -25,7 +25,6 @@ app.post('/apoloanapi/pret/create',createPret,(req,res)=>{})
 
 app.post('/apoloanapi/emprunt/create',createEmprunt,(req,res)=>{})
 
-
 /// ------------------------------ METHOD GET ----------------------------------------------- ///
 app.get('/apoloanapi/annonce/list',listAnnonce,(req,res)=>{})
 
@@ -35,7 +34,7 @@ app.get('/apoloanapi/emprunt/list',listEmprunt,(req,res)=>{})
 
 
 /// ------------------------------ METHOD PATCH ----------------------------------------------- ///
-app.patch('/apoloanapi/annonce/patch',listAnnonce,(req,res)=>{})
+app.patch('/apoloanapi/annonce/patch',patchAnnonce,(req,res)=>{})
 
 app.patch('/apoloanapi/pret/patch',listPret,(req,res)=>{})
 

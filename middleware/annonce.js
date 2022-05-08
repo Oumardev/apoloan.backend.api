@@ -50,7 +50,15 @@ const listAnnonce = async (req,res,next) =>{
 
 const patchAnnonce = async (req,res,next) =>{
     VerifyToken(req,res,next)
+    
     const { idAnnonce, duree, pourcentage, montant } = req.body
+
+    if( !idAnnonce || !duree || !pourcentage || !montant ) return res.status(401).json({'message' : 'Veuillez saisir tout les champs'})
+
+    if( duree.replace(/\s/g, '')=='' ) return res.status(401).json({'message' : 'Veuillez saisir tout les champs'})
+     
+    // vérifie si numéro contient des letttres
+    if (!Number.isInteger(montant)) return res.status(401).json({'message' : 'Certaines informations ne doivent pas contenir des lettres'})
 
     try {
         const annonce = await Annonce.findOne({where : {'id': idAnnonce}})
