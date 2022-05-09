@@ -21,9 +21,6 @@ module.exports = {
       age: {
         type: Sequelize.INTEGER
       },
-      solde: {
-        type: Sequelize.FLOAT
-      },
       sexe: {
         type: Sequelize.STRING
       },
@@ -34,11 +31,19 @@ module.exports = {
         type: Sequelize.STRING
       },
       numeroCNI: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         unique:true
       },
       password: {
         type: Sequelize.STRING
+      },
+      idCompte:{
+        type: Sequelize.INTEGER,
+        references:{
+          model : 'Comptes',
+          key: 'id',
+          as: 'idCompte'
+        }
       },
       createdAt: {
         allowNull: false,

@@ -1,17 +1,17 @@
-const { User } = require('../models')
+const { User, Compte } = require('../models')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 const register = (req,res,next) =>{
-    const { nom, prenom, numero, age, sexe, adresse, solde, fonction, numeroCNI, password } = req.body
+    const { nom, prenom, numero, age, sexe, adresse, fonction, numeroCNI, password } = req.body
     const regex = /\d/;
 
     if (password.length < 8) return res.status(401).json({'message' : 'Le mot de passe doit contenir au moins 8 caractères'})
 
-    if( !nom || !prenom || !numero || !age || !sexe || !adresse || !solde || !fonction || !numeroCNI || !password  ) return res.status(401).json({'message' : 'Veuillez saisir tout les champs'})
+    if( !nom || !prenom || !numero || !age || !sexe || !adresse || !fonction || !numeroCNI || !password  ) return res.status(401).json({'message' : 'Veuillez saisir tout les champs'})
 
     // vérifie si les chaines de caractères sont composées uniquement que d'espace
-    if( nom.replace(/\s/g, '')=='' || prenom.replace(/\s/g, '')=='' || sexe.replace(/\s/g, '')=='' || adresse.replace(/\s/g, '')=='' || fonction.replace(/\s/g, '')=='' || numeroCNI.replace(/\s/g, '')=='' ) return res.status(401).json({'message' : 'Veuillez saisir tout les champs'})
+    if( nom.replace(/\s/g, '')=='' || prenom.replace(/\s/g, '')=='' || sexe.replace(/\s/g, '')=='' || adresse.replace(/\s/g, '')=='' || fonction.replace(/\s/g, '')=='' ) return res.status(401).json({'message' : 'Veuillez saisir tout les champs'})
 
     // vérifie si le nom ou le prenom contiennent des chiffres
     if (regex.test(nom) || regex.test(prenom) || regex.test(sexe))  return res.status(401).json({'message' : 'Certaines informations ne doivent pas contenir des chiffres'})
@@ -26,7 +26,10 @@ const register = (req,res,next) =>{
             const password = hashPassword
             
             try {
-                const usr = await User.create({ nom, prenom, numero, age, sexe, adresse, solde, fonction, numeroCNI, password })
+                const cmpt = await Compte.create({solde: 0.0})
+                const idCompte = cmpt.id
+
+                const usr = await User.create({ nom, prenom, numero, age, sexe, adresse, fonction, numeroCNI, password, idCompte })
                 if(!usr) return res.status(401).json({'message':'Utilisateur ne peut etre crée'})
                 next()
 

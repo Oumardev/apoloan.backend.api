@@ -21,6 +21,11 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE'
       })
 
+      User.belongsTo(models.Compte,{
+        foreignKey:'idCompte',
+        onDelete: 'CASCADE'
+      })
+
     }
   }
   User.init({
@@ -31,15 +36,15 @@ module.exports = (sequelize, DataTypes) => {
       unique : true
     },
     age: DataTypes.INTEGER,
-    solde: DataTypes.FLOAT,
     sexe: DataTypes.STRING,
     adresse: DataTypes.STRING,
     fonction: DataTypes.STRING,
     numeroCNI: {
-      type : DataTypes.STRING,
+      type : DataTypes.INTEGER,
       unique : true
     },
-    password: DataTypes.STRING
+    password: DataTypes.STRING,
+    idCompte : DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'User',
