@@ -279,11 +279,11 @@ const debitUserAccount = async (req,res,next) =>{
 
         // on modifie le status de l'emprunt
         const empt = await Emprunt.findOne({where : {idContrat : pretFound.idContrat}})
-        empt.status = 'rembousé'
+        empt.statut = 'rembousé'
         await empt.save()
 
         // on modifie le status du pret
-        pretFound.status = 'rembousé'
+        pretFound.statut = 'rembousé'
         await pretFound.save()
 
         return res.status(401).json({'La transaction s\'est bien passé: ': senderAccount})
