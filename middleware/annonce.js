@@ -6,7 +6,9 @@ const createAnnonce = async (req,res,next) =>{
     VerifyToken(req,res,next)
     const user = req.user
 
-    const { type, duree, pourcentage, montant, isBooster } = req.body  //  type:['EMPRUNTEUR','CONTRIBUTEUR'] 
+    if(!user) return res.status(401).json({'message':'Erreur interne'})
+
+    const { type, duree, pourcentage, montant } = req.body  //  type:['EMPRUNTEUR','CONTRIBUTEUR'] 
 
     if( !type || !duree || !pourcentage || !montant ) return res.status(401).json({'message' : 'Veuillez saisir tout les champs'})
 
@@ -18,7 +20,7 @@ const createAnnonce = async (req,res,next) =>{
    // insertion de l'annonce
 
    try {
-       const annonce = await Annonce.create({'type': type, 'duree': duree, 'pourcentage': pourcentage, 'montant': montant, 'isBooster':isBooster, 'isVisible': true, 'codeUser': user.id})
+       const annonce = await Annonce.create({'type': type, 'duree': duree, 'pourcentage': pourcentage, 'montant': montant, 'isBooster':false, 'isVisible': true, 'codeUser': user.id})
 
        if(!annonce) return res.status(401).json({'message':'Erreur interne',error})
 
@@ -32,11 +34,16 @@ const listAnnonce = async (req,res,next) =>{
     VerifyToken(req,res,next)
     const user = req.user
 
+    if(!user) return res.status(401).json({'message':'Erreur interne'})
+
     try {
         const listAnc = await Annonce.findAll({
             where: {
                 codeUser: {                         
                     [Op.ne]: user.id,   
+                },
+                isVisible:{
+                    [Op.eq] : true
                 }
             }
         })
@@ -51,6 +58,9 @@ const listAnnonce = async (req,res,next) =>{
 const patchAnnonce = async (req,res,next) =>{
     VerifyToken(req,res,next)
     
+    const user = req.user
+    if(!user) return res.status(401).json({'message':'Erreur interne'})
+
     const { idAnnonce, duree, pourcentage, montant } = req.body
 
     if( !idAnnonce || !duree || !pourcentage || !montant ) return res.status(401).json({'message' : 'Veuillez saisir tout les champs'})

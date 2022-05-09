@@ -1,11 +1,15 @@
-const { User, Compte, Annonce, Emprunt, Contrat, PRET } = require('../models')
+const { User, Compte, Annonce, Emprunt, Contrat, Pret } = require('../models')
 const { VerifyToken } = require('./verifyToken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 
 const getUser = async (req,res,next) =>{
     VerifyToken(req,res,next)
-    const {IDUSER} = req.user.id
+
+    const user = req.user
+    if(!user) return res.status(401).json({'message':'Erreur interne'})
+
+    const IDUSER = req.user.id
 
     try {
         const userFound = await User.findOne({where: {id: IDUSER}})
@@ -22,7 +26,11 @@ const editUser = async (req,res,next) =>{
     const { nom, prenom, age, adresse, fonction } = req.body
 
     VerifyToken(req,res,next)
-    const {IDUSER} = req.user.id
+
+    const user = req.user
+    if(!user) return res.status(401).json({'message':'Erreur interne'})
+
+    const IDUSER = req.user.id
 
     if( !nom || !prenom || !age || !adresse || !fonction ) return res.status(401).json({'message' : 'Veuillez saisir tout les champs'})
 
@@ -54,7 +62,10 @@ const editPassword = async (req,res,next) =>{
     const { oldPassword ,newPassword } = req.body
 
     VerifyToken(req,res,next)
-    const {IDUSER} = req.user.id
+
+    const user = req.user
+    if(!user) return res.status(401).json({'message':'Erreur interne'})
+    const IDUSER = req.user.id
 
     if (newPassword.length < 8) return res.status(401).json({'message' : 'Le mot de passe doit contenir au moins 8 caractères'})
 
@@ -90,7 +101,10 @@ const refilUserAccount = async (req,res,next) =>{
     const { montant } = req.body
 
     VerifyToken(req,res,next)
-    const {IDUSER} = req.user.id
+
+    const user = req.user
+    if(!user) return res.status(401).json({'message':'Erreur interne'})
+    const IDUSER = req.user.id
 
     /**
      * ici seront les fonctions de vérification du solde de la carte bancaire 
@@ -103,7 +117,9 @@ const refilUserAccount = async (req,res,next) =>{
         const userFound = await User.findOne({where: {id: IDUSER}})
         if(!userFound) return res.status(401).json({'message' : 'Erreur interne'})
 
-        const userAccount = await Compte.findOne({where: {id: userFound.id}})
+        const userAccount = await Compte.findOne({where: {id: userFound.idCompte}})
+        if(!userAccount) return res.status(401).json({'message' : 'Le compte a une erreur'})
+
         userAccount.solde += montant
 
         await userAccount.save()
@@ -123,7 +139,10 @@ const debitUserAccount = async (req,res,next) =>{
     const { IDANNONCE } = req.body 
    
     VerifyToken(req,res,next)
-    const {IDUSER} = req.user.id // IDUSER utilisateur en cour ...
+
+    const user = req.user
+    if(!user) return res.status(401).json({'message':'Erreur interne'})
+    const IDUSER = req.user.id // IDUSER utilisateur en cour ...
 
     try {
         // on recherche les informations sur l'annonce
@@ -160,10 +179,10 @@ const debitUserAccount = async (req,res,next) =>{
             const contratEmpt = await Contrat.create({'nom': uuid.v1()})
 
             // on enregistre l'emprunt
-            await PRET.create({idContributeur: IDUSER, idAnnonce: annonceFound.id, idContrat : contratEmpt.id, statut : 'en cour'})
+            await Pret.create({idDemandeur: annonceFound.codeUser, idAnnonce: annonceFound.id, idContrat : contratEmpt.id, statut : 'en cour'})
 
             // on enregistre le pret
-            await Emprunt.create({idDemandeur: annonceFound.codeUser , idAnnonce: annonceFound.id, idContrat : contratEmpt.id, statut : 'en cour'})
+            await Emprunt.create({idContributeur : IDUSER , idAnnonce: annonceFound.id, idContrat : contratEmpt.id, statut : 'en cour'})
 
             return res.status(401).json({'La transaction s\'est bien passé: ': senderAccount})
 
@@ -197,10 +216,10 @@ const debitUserAccount = async (req,res,next) =>{
             const contratEmpt = await Contrat.create({'nom': uuid.v1()})
 
             // on enregistre l'emprunt
-            await PRET.create({idContributeur: annonceFound.codeUser, idAnnonce: annonceFound.id, idContrat : contratEmpt.id, statut : 'en cour'})
+            await Pret.create({idDemandeur: IDUSER, idAnnonce: annonceFound.id, idContrat : contratEmpt.id, statut : 'en cour'})
 
             // on enregistre le pret
-            await Emprunt.create({idDemandeur: IDUSER, idAnnonce: annonceFound.id, idContrat : contratEmpt.id, statut : 'en cour'})
+            await Emprunt.create({idContributeur: annonceFound.codeUser , idAnnonce: annonceFound.id, idContrat : contratEmpt.id, statut : 'en cour'})
 
             return res.status(401).json({'La transaction s\'est bien passé: ': senderAccount})
         }
@@ -216,6 +235,11 @@ const debitUserAccount = async (req,res,next) =>{
  */
  const refundUserAccount = async (req,res,next) =>{
     const { IDPRET } = req.body
+    
+    VerifyToken(req,res,next)
+    const user = req.user
+    if(!user) return res.status(401).json({'message':'Erreur interne'})
+    const IDUSER = req.user.id // IDUSER utilisateur en cour ...
 
     try {
         // on recherche les informations sur l'emprunt
@@ -229,15 +253,16 @@ const debitUserAccount = async (req,res,next) =>{
         // on calcule le montant totale du rembourssement avec frais
         const MONTANT_TOTAL = annonceFound.montant + (annonceFound.montant * annonceFound.pourcentage)
 
+        console.log(MONTANT_TOTAL)
         /**
         * ici sera la fonction qui créditera notre prope fond 
         * on devra enlever un pourcentage supplémentaire pour notre société
         */
 
-        const recipientUser = await User.findOne({where: {id: annonceFound.codeUser}})
+        const recipientUser = await User.findOne({where: {id: pretFound.idContributeur }})
         if(!recipientUser) return res.status(401).json({'message' : 'Erreur interne'})
-
-        const senderUser = await User.findOne({where: {id: pretFound.idDemandeur}})
+       
+        const senderUser = await User.findOne({where: {id: IDUSER}})
         const senderAccount = await Compte.findOne({where: {id : senderUser.idCompte}})
 
         // on vérifie si le solde disponible sur le compte de l'expéditeur est suffisant
@@ -245,11 +270,11 @@ const debitUserAccount = async (req,res,next) =>{
 
         // on crédite le compte du receveur
         const recipientAccount = await Compte.findOne({where : {id: recipientUser.idCompte}})
-        recipientAccount.solde += annonceFound.montant
+        recipientAccount.solde += MONTANT_TOTAL
         await recipientAccount.save()
 
         // on débite le compte de l'expéditeur
-        senderAccount.solde -= annonceFound.montant
+        senderAccount.solde -= MONTANT_TOTAL
         await senderAccount.save()
 
         // on modifie le status de l'emprunt
@@ -264,6 +289,7 @@ const debitUserAccount = async (req,res,next) =>{
         return res.status(401).json({'La transaction s\'est bien passé: ': senderAccount})
 
     } catch (error) {
+      //  console.log(error)
         return res.status(401).json({'message' : 'Erreur interne'})
     }
 }
