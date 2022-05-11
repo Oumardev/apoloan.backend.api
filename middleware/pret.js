@@ -1,4 +1,4 @@
-const { Emprunt } = require('../models')
+const { Emprunt, User, Contrat, Annonce } = require('../models')
 const { VerifyToken } = require('./verifyToken')
 const { Op } = require("sequelize");
 
@@ -6,7 +6,7 @@ const listPret = async (req,res,next) =>{
     VerifyToken(req,res,next)
     
     const user = req.user
-    if(!user) return res.status(401).json({'message':'Erreur interne'})
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
 
     try {
 
@@ -15,14 +15,15 @@ const listPret = async (req,res,next) =>{
                 idContributeur: {                         
                     [Op.eq]: user.id,   
                 }
-            }
+            },
+            include : [User, Contrat, Annonce]
         })
 
-        return res.status(200).json({'ListPret ': listPrt})   
+        return res.status(200).json({'success': listPrt})   
         
     } catch (error) {
         console.log(error)
-        return res.status(401).json({'message':'Erreur interne'})   
+        return res.status(401).json({'error':'Erreur interne'})   
     }
 }
 

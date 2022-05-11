@@ -12,7 +12,7 @@ const getUser = async (req,res,next) =>{
     const IDUSER = req.user.id
 
     try {
-        const userFound = await User.findOne({where: {id: IDUSER}})
+        const userFound = await User.findOne({where: {id: IDUSER}, include: Compte})
         if(!userFound) return res.status(401).json({'message' : 'Erreur interne'})
 
         return res.status(200).json({'user': userFound})   
@@ -123,7 +123,7 @@ const refilUserAccount = async (req,res,next) =>{
         userAccount.solde += montant
 
         await userAccount.save()
-        return res.status(401).json({'Rechargement effectué: ' : userAccount})
+        return res.status(201).json({'Rechargement effectué: ' : userAccount})
 
     } catch (error) {
         return res.status(401).json({'message' : 'Erreur interne'})
@@ -141,27 +141,27 @@ const debitUserAccount = async (req,res,next) =>{
     VerifyToken(req,res,next)
 
     const user = req.user
-    if(!user) return res.status(401).json({'message':'Erreur interne'})
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
     const IDUSER = req.user.id // IDUSER utilisateur en cour ...
 
     try {
         // on recherche les informations sur l'annonce
         const annonceFound = await Annonce.findOne({where: {id: IDANNONCE}})
-        if(!annonceFound) return res.status(401).json({'message' : 'Erreur interne'})
+        if(!annonceFound) return res.status(401).json({'error' : 'Erreur interne'})
 
-        if (annonceFound.type == 'EMPRUNTEUR') {
+        if (annonceFound.type == 'EMPRUNT') {
             // si l'utilisateur en cour vois une annonce d'emprunt et qu'il veut donner de l'argent
 
             const senderUser = await User.findOne({where: {id: IDUSER}})
-            if(!senderUser) return res.status(401).json({'message' : 'Erreur interne'})
+            if(!senderUser) return res.status(401).json({'error' : 'Erreur interne'})
             const senderAccount = await Compte.findOne({where: {id: senderUser.idCompte}})
     
             // on vérifie si le solde disponible sur le compte de l'expéditeur est suffisant
-            if(senderAccount.solde < annonceFound.montant ) return res.status(401).json({'message: ' : 'Impossible d\'effectué cette transaction solde insuffisant'})
+            if(senderAccount.solde < annonceFound.montant ) return res.status(401).json({'error' : 'Impossible d\'effectué cette transaction solde insuffisant'})
     
             // on crédite le compte du receveur
             const recipientUser = await User.findOne({where: {id: annonceFound.codeUser}})
-            if(!recipientUser) return res.status(401).json({'message' : 'Erreur interne'})
+            if(!recipientUser) return res.status(401).json({'error' : 'Erreur interne'})
             const recipientAccount = await Compte.findOne({where: {id: recipientUser.idCompte}})
     
             recipientAccount.solde += annonceFound.montant
@@ -184,21 +184,21 @@ const debitUserAccount = async (req,res,next) =>{
             // on enregistre le pret
             await Emprunt.create({idContributeur : IDUSER , idAnnonce: annonceFound.id, idContrat : contratEmpt.id, statut : 'en cour'})
 
-            return res.status(401).json({'La transaction s\'est bien passé: ': senderAccount})
+            return res.status(201).json({'success': 'La transaction s\'est bien passé'})
 
         } else {
             // si l'utilisateur en cour vois une annonce de contribution et qu'il veut emprunter
 
             const senderUser = await User.findOne({where: {id: annonceFound.codeUser}})
-            if(!senderUser) return res.status(401).json({'message' : 'Erreur interne'})
+            if(!senderUser) return res.status(401).json({'error' : 'Erreur interne'})
             const senderAccount = await Compte.findOne({where: {id: senderUser.idCompte}})
     
             // on vérifie si le solde disponible sur le compte de l'expéditeur est suffisant
-            if(senderAccount.solde < annonceFound.montant ) return res.status(401).json({'message: ' : 'Impossible d\'effectué cette transaction solde insuffisant'})
+            if(senderAccount.solde < annonceFound.montant ) return res.status(401).json({'error' : 'Impossible d\'effectué cette transaction solde insuffisant'})
     
             // on crédite le compte du receveur
             const recipientUser = await User.findOne({where: {id: IDUSER}})
-            if(!recipientUser) return res.status(401).json({'message' : 'Erreur interne'})
+            if(!recipientUser) return res.status(401).json({'error' : 'Erreur interne'})
             const recipientAccount = await Compte.findOne({where: {id: recipientUser.idCompte}})
     
             recipientAccount.solde += annonceFound.montant
@@ -221,11 +221,11 @@ const debitUserAccount = async (req,res,next) =>{
             // on enregistre le pret
             await Emprunt.create({idContributeur: annonceFound.codeUser , idAnnonce: annonceFound.id, idContrat : contratEmpt.id, statut : 'en cour'})
 
-            return res.status(401).json({'La transaction s\'est bien passé: ': senderAccount})
+            return res.status(201).json({'success': 'La transaction s\'est bien passé'})
         }
 
     } catch (error) {
-        return res.status(401).json({'message' : 'Erreur interne'})
+        return res.status(401).json({'error' : 'Erreur interne'})
     }
 }
 
@@ -238,17 +238,17 @@ const debitUserAccount = async (req,res,next) =>{
     
     VerifyToken(req,res,next)
     const user = req.user
-    if(!user) return res.status(401).json({'message':'Erreur interne'})
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
     const IDUSER = req.user.id // IDUSER utilisateur en cour ...
 
     try {
         // on recherche les informations sur l'emprunt
         const pretFound = await Emprunt.findOne({where: {id: IDPRET}})
-        if(!pretFound) return res.status(401).json({'message' : 'Erreur interne'})
+        if(!pretFound) return res.status(401).json({'error' : 'Erreur interne'})
 
         // on recupère les information sur l'annonce
         const annonceFound = await Annonce.findOne({where: {id: pretFound.idAnnonce}})
-        if(!annonceFound) return res.status(401).json({'message' : 'Erreur interne'})
+        if(!annonceFound) return res.status(401).json({'error' : 'Erreur interne'})
 
         // on calcule le montant totale du rembourssement avec frais
         const MONTANT_TOTAL = annonceFound.montant + (annonceFound.montant * annonceFound.pourcentage)
@@ -260,7 +260,7 @@ const debitUserAccount = async (req,res,next) =>{
         */
 
         const recipientUser = await User.findOne({where: {id: pretFound.idContributeur }})
-        if(!recipientUser) return res.status(401).json({'message' : 'Erreur interne'})
+        if(!recipientUser) return res.status(401).json({'error' : 'Erreur interne'})
        
         const senderUser = await User.findOne({where: {id: IDUSER}})
         const senderAccount = await Compte.findOne({where: {id : senderUser.idCompte}})
@@ -286,11 +286,11 @@ const debitUserAccount = async (req,res,next) =>{
         pretFound.statut = 'rembousé'
         await pretFound.save()
 
-        return res.status(401).json({'La transaction s\'est bien passé: ': senderAccount})
+        return res.status(201).json({'success': 'La transaction s\'est bien passé'})
 
     } catch (error) {
       //  console.log(error)
-        return res.status(401).json({'message' : 'Erreur interne'})
+        return res.status(401).json({'error' : 'Erreur interne'})
     }
 }
 
