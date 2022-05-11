@@ -287,14 +287,30 @@ app.get('/apoloanapi/annonce/list',listAnnonce,(req,res)=>{})
  *     - "Pret"
  *     summary: Liste des pret de l'utilisateur
  *     description: Ce lien est utilisé pour afficher la liste des prets d'un utilisateur
- *     parameters:
- *      - in: body
- *        name: body
- *        description: object
- *        required: true
  *     responses:
  *       201:
- *         description: Annonce crée
+ *         description: Liste des prèts
+ *         schema:
+ *          type: object
+ *          properties:
+ *              statut:
+ *                type: string
+ *              Contrat:
+ *                type: object
+ *                properties:
+ *                  nom:
+ *                    type: string
+ *              Annonce:
+ *                type: object
+ *                properties:
+ *                  duree:
+ *                    type: string
+ *                  pourcentage:
+ *                    type: integer
+ *                  montant:
+ *                    type: integer
+ *                  createdAt:
+ *                    type: string      
  */
 app.get('/apoloanapi/pret/list',listPret,(req,res)=>{})
 
@@ -303,17 +319,33 @@ app.get('/apoloanapi/pret/list',listPret,(req,res)=>{})
  * /apoloanapi/emprunt/list:
  *   get:
  *     tags:
- *     - "Emprunt"
+ *     - "Pret"
  *     summary: Liste des emprunts de l'utilisateur
  *     description: Ce lien est utilisé pour afficher la liste des emprunts d'un utilisateur
- *     parameters:
- *      - in: body
- *        name: body
- *        description: object
- *        required: true
  *     responses:
- *       200:
- *         description: Emprunt listé 
+ *       201:
+ *         description: Liste des emprunts
+ *         schema:
+ *          type: object
+ *          properties:
+ *              statut:
+ *                type: string
+ *              Contrat:
+ *                type: object
+ *                properties:
+ *                  nom:
+ *                    type: string
+ *              Annonce:
+ *                type: object
+ *                properties:
+ *                  duree:
+ *                    type: string
+ *                  pourcentage:
+ *                    type: integer
+ *                  montant:
+ *                    type: integer
+ *                  createdAt:
+ *                    type: string      
  */
 app.get('/apoloanapi/emprunt/list',listEmprunt,(req,res)=>{})
 
