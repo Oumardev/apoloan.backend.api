@@ -20,7 +20,22 @@ const swaggerOptions = {
         title: "APOLOAN API DOCUMENTATION",
         version: '2.0.1',
       },
+        servers: [
+            {
+                url: `http://oumardev.com`
+            }
+        ],
+        securityDefinitions: {
+            bearerAuth: {
+                type: 'apiKey',
+                name: 'Authorization',
+                scheme: 'bearer',
+                in: 'header',
+            },
+        },
+        
     },
+
     apis: ["index.js"],
 };
 
@@ -118,22 +133,18 @@ app.post('/apoloanapi/login',login,(req,res)=>{})
  *     - "Annonce"
  *     summary: Créer une annonce
  *     description: Ce lien est utilisé pour créer une annonce
+ *     security:
+ *      - bearerAuth: [] 
  *     parameters:
  *      - in: body
  *        name: body
- *        description: object
+ *        description: object   
  *        schema:
  *         type: object
  *         properties:
  *           type:
- *              type: array
- *              items:
- *                  type: object
- *                  properties:
- *                      PRET:
- *                         type: string
- *                      EMPRUNT:
- *                         type: string
+ *              type: string
+ *              enum : ['PRET / EMPRUNT']    
  *           duree:
  *              type: string
  *           pourcentage:
@@ -141,6 +152,8 @@ app.post('/apoloanapi/login',login,(req,res)=>{})
  *           montant:
  *              type: integer
  *        required: true
+ *     security:
+ *      - bearerAuth: [] 
  *     responses:
  *       201:
  *         description: L'annonce a été créé
@@ -156,7 +169,9 @@ app.post('/apoloanapi/annonce/create',createAnnonce,(req,res)=>{
  *     tags:
  *     - "User"
  *     summary: Se recharger 
- *     description: Ce lien est utilisé pour recharger le solde de l'utilisateur 
+ *     description: Ce lien est utilisé pour recharger le solde de l'utilisateur
+ *     security:
+ *      - bearerAuth: []  
  *     parameters:
  *      - in: body
  *        name: body
@@ -182,6 +197,8 @@ app.post('/apoloanapi/useraccount/refil',refilUserAccount,(req,res)=>{})
  *     - "Annonce"
  *     summary: Débiter / Créditer (Selon type Annonce)
  *     description: Ce lien sera utilisé pour débiter le compte de l'utilisateur quand il voudra contribuer a une annonce d'emprunt ou quand un emprunteur sera intéressé par une annonce de pret
+ *     security:
+ *      - bearerAuth: [] 
  *     parameters:
  *      - in: body
  *        name: body
@@ -206,6 +223,8 @@ app.post('/apoloanapi/useraccount/debit',debitUserAccount,(req,res)=>{})
  *     - "Annonce"
  *     summary: Remboursser un pret
  *     description: Ce lien sera utilisé pour le rembourssement d'un pret 
+ *     security:
+ *      - bearerAuth: [] 
  *     parameters:
  *      - in: body
  *        name: body
@@ -231,6 +250,8 @@ app.post('/apoloanapi/useraccount/refound',refundUserAccount,(req,res)=>{})
  *     - "Annonce"
  *     summary: Liste des annonces
  *     description: Ce lien est utilisé pour afficher la liste des annonces pour l'utilisateur connecté
+ *     security:
+ *      - bearerAuth: [] 
  *     responses:
  *       200:
  *         description: Information sur les annonces listé
@@ -287,6 +308,8 @@ app.get('/apoloanapi/annonce/list',listAnnonce,(req,res)=>{})
  *     - "Pret"
  *     summary: Liste des pret de l'utilisateur
  *     description: Ce lien est utilisé pour afficher la liste des prets d'un utilisateur
+ *     security:
+ *      - bearerAuth: [] 
  *     responses:
  *       201:
  *         description: Liste des prèts
@@ -322,6 +345,8 @@ app.get('/apoloanapi/pret/list',listPret,(req,res)=>{})
  *     - "Pret"
  *     summary: Liste des emprunts de l'utilisateur
  *     description: Ce lien est utilisé pour afficher la liste des emprunts d'un utilisateur
+ *     security:
+ *      - bearerAuth: [] 
  *     responses:
  *       201:
  *         description: Liste des emprunts
@@ -357,6 +382,8 @@ app.get('/apoloanapi/emprunt/list',listEmprunt,(req,res)=>{})
  *     - "User"
  *     summary: Information utilisateur
  *     description: Utilisé pour afficher les informations de l'utilisateur connecté
+ *     security:
+ *      - bearerAuth: [] 
  *     responses:
  *       200:
  *         description: Information listé
@@ -404,6 +431,8 @@ app.get('/apoloanapi/user',getUser,(req,res)=>{
  *     - "Annonce"
  *     summary: Modifier une annonce 
  *     description: Ce lien est utilisé pour modifier une annonce
+ *     security:
+ *      - bearerAuth: [] 
  *     parameters:
  *      - in: body
  *        name: body
@@ -434,6 +463,8 @@ app.patch('/apoloanapi/annonce',patchAnnonce,(req,res)=>{})
  *     - "User"
  *     summary: Modifier utilisateur 
  *     description: Ce lien est utilisé pour modifier les informations de l'utilisateur connecté
+ *     security:
+ *      - bearerAuth: [] 
  *     parameters:
  *      - in: body
  *        name: body
@@ -466,6 +497,8 @@ app.patch('/apoloanapi/user',editUser,(req,res)=>{})
  *     - "User"
  *     summary: Modifier mot de passe 
  *     description: Ce lien est utilisé pour modifier le mot de passe de l'utilisateur
+ *     security:
+ *      - bearerAuth: [] 
  *     parameters:
  *      - in: body
  *        name: body
