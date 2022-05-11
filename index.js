@@ -19,6 +19,12 @@ const swaggerOptions = {
       info: {
         title: "APOLOAN API DOCUMENTATION",
         version: '2.0.1',
+        description : 'Apoloan est une plateforme Peer to Peer qui permet aux membres d\'accéder ou fournir facilement des fonds à court terme pour des besoins immédiats de facon discrèt et sécurisé.',
+        url: "http://localhost:4000/todos",
+        contact: {
+            name: "Oumar CISSE", // your name
+            url: "http://www.oumardev.com", // your website
+        }
       },
         servers: [
             {
@@ -42,8 +48,7 @@ const swaggerOptions = {
 var options = {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: "APOLOAN API",
-  };
-  
+};
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/apoloanapi-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs,options));
@@ -420,7 +425,6 @@ app.get('/apoloanapi/emprunt/list',listEmprunt,(req,res)=>{})
  */
 app.get('/apoloanapi/user',getUser,(req,res)=>{
 })
-
 
 /// ------------------------------ METHOD PATCH ----------------------------------------------- ///
 /**
