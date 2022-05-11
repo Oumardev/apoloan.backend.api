@@ -253,7 +253,6 @@ const debitUserAccount = async (req,res,next) =>{
         // on calcule le montant totale du rembourssement avec frais
         const MONTANT_TOTAL = annonceFound.montant + (annonceFound.montant * annonceFound.pourcentage)
 
-        console.log(MONTANT_TOTAL)
         /**
         * ici sera la fonction qui créditera notre prope fond 
         * on devra enlever un pourcentage supplémentaire pour notre société

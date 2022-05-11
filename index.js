@@ -24,6 +24,10 @@ const swaggerOptions = {
         contact: {
             name: "Oumar CISSE", // your name
             url: "http://www.oumardev.com", // your website
+        },
+        licence:{
+            name: "oumar ccisse",
+            url:  "http://www.oumardev.com"
         }
       },
         servers: [
