@@ -37,19 +37,37 @@ const listAnnonce = async (req,res,next) =>{
     if(!user) return res.status(401).json({'error':'Erreur interne'})
 
     try {
-        const listAnc = await Annonce.findAll({
+        const listPret = await Annonce.findAll({
             where: {
                 codeUser: {                         
                     [Op.ne]: user.id,   
                 },
                 isVisible:{
                     [Op.eq] : true
+                },
+                type:{
+                    [Op.eq] : 'PRET'
                 }
             },
             include: User
         })
-        console.log(listAnc)
-        return res.status(200).json({'success': listAnc})   
+
+        const listEmprunt = await Annonce.findAll({
+            where: {
+                codeUser: {                         
+                    [Op.ne]: user.id,   
+                },
+                isVisible:{
+                    [Op.eq] : true
+                },
+                type:{
+                    [Op.eq] : 'EMPRUNT'
+                }
+            },
+            include: User
+        })
+
+        return res.status(200).json({'pret': listPret, 'emprunt': listEmprunt})   
         
     } catch (error) {
         return res.status(401).json({'error':'Erreur interne',error})   
@@ -88,4 +106,23 @@ const patchAnnonce = async (req,res,next) =>{
     }
 }
 
-module.exports = { createAnnonce , listAnnonce, patchAnnonce }
+const deleteAnnonce = async (req,res,next) =>{
+    VerifyToken(req,res,next)
+
+    const user = req.user
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
+
+    const { idAnnonce } = req.body    
+
+    try {
+        const anndel = await Annonce.destroy({where : {id : idAnnonce}})
+        if(!anndel) return res.status(401).json({'error':'Erreur interne'})
+
+        return res.status(200).json({'success':'Annonce supprimé'})   
+    } catch (error) {
+        return res.status(401).json({'error':'Erreur interne',error})      
+    }
+
+}
+
+module.exports = { createAnnonce , listAnnonce, patchAnnonce , deleteAnnonce }

@@ -69,7 +69,7 @@ const login = async (req,res,next) =>{
 
             const token = jwt.sign(userFound.dataValues,process.env.SECRET_TOKEN,{expiresIn : '1h'})
 
-            return res.status(201).json({'token': token, 'isLogin': true})
+            return res.status(200).json({'token': token, 'isLogin': true})
         })
 
     } catch (error) {

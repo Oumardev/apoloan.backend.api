@@ -4,7 +4,7 @@ const bodyParser = require('body-parser')
 const app = express()
 require('dotenv').config()
 const { register, login } = require('./middleware/auth')
-const { createAnnonce, listAnnonce, patchAnnonce } = require('./middleware/annonce')
+const { createAnnonce, listAnnonce, patchAnnonce, deleteAnnonce } = require('./middleware/annonce')
 const { listPret } = require('./middleware/pret')
 const { listEmprunt } = require('./middleware/emprunt')
 const { getUser, editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount } = require('./middleware/user')
@@ -200,7 +200,7 @@ app.post('/apoloanapi/useraccount/refil',refilUserAccount,(req,res)=>{})
 
 /**
  * @swagger
- * /apoloanapi/useraccountdebit:
+ * /apoloanapi/useraccount/debit:
  *   post:
  *     tags:
  *     - "Annonce"
@@ -525,8 +525,34 @@ app.patch('/apoloanapi/user',editUser,(req,res)=>{})
  */
 app.patch('/apoloanapi/password',editPassword,(req,res)=>{})
 
+/// ------------------------------ METHOD DELETE ----------------------------------------------- ///
+/**
+ * @swagger
+ * /apoloanapi/annonce:
+ *   delete:
+ *     tags:
+ *     - "Annonce"
+ *     summary: Supprimer une annonce 
+ *     description: Ce lien est utilisé pour supprimer une annonce
+ *     security:
+ *      - bearerAuth: [] 
+ *     parameters:
+ *      - in: body
+ *        name: body
+ *        description: object
+ *        schema:
+ *         type: object
+ *         properties:
+ *           idAnnonce:
+ *              type: integer
+ *        required: true
+ *     responses:
+ *       201:
+ *         description: Annonce supprimé
+ */
+ app.delete('/apoloanapi/annonce',deleteAnnonce,(req,res)=>{})
 
-app.listen(2500,'86.107.197.161', async()=>{
+app.listen(2000,'86.107.197.161', async()=>{
     try {
         await sequelize.authenticate()
         console.log('serveur en marche sur http://www.oumardev.com:2500')
