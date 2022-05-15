@@ -5,14 +5,14 @@ const { Op } = require("sequelize");
 const createAnnonce = async (req,res,next) =>{
     VerifyToken(req,res,next)
     const user = req.user
-
     if(!user) return res.status(401).json({'error':'Erreur interne'})
 
+    console.log('body req',req.body)
     const { type, duree, pourcentage, montant } = req.body  //  type:['EMPRUNT','PRET'] 
 
     if( !type || !duree || !pourcentage || !montant ) return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
 
-    if( type.replace(/\s/g, '')=='' || duree.replace(/\s/g, '')=='') return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
+    if( type.replace(/\s/g, '')=='') return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
      
     // vérifie si numéro contient des letttres
     if (!Number.isInteger(montant)) return res.status(401).json({'error' : 'Certaines informations ne doivent pas contenir des lettres'})
@@ -24,7 +24,6 @@ const createAnnonce = async (req,res,next) =>{
 
        if(!annonce) return res.status(401).json({'error':'Erreur interne',error})
 
-       next()
     } catch (error) {
         return res.status(401).json({'error':'Erreur interne',error})
    }

@@ -151,9 +151,8 @@ app.post('/apoloanapi/login',login,(req,res)=>{})
  *        schema:
  *         type: object
  *         properties:
- *           type:
- *              type: string
- *              enum : ['PRET / EMPRUNT']    
+ *           types:
+ *              type: string 
  *           duree:
  *              type: string
  *           pourcentage:
@@ -161,8 +160,6 @@ app.post('/apoloanapi/login',login,(req,res)=>{})
  *           montant:
  *              type: integer
  *        required: true
- *     security:
- *      - bearerAuth: [] 
  *     responses:
  *       201:
  *         description: L'annonce a été créé
@@ -552,10 +549,10 @@ app.patch('/apoloanapi/password',editPassword,(req,res)=>{})
  */
  app.delete('/apoloanapi/annonce',deleteAnnonce,(req,res)=>{})
 
-app.listen(2000,'86.107.197.161', async()=>{
+app.listen(1000,'86.107.197.161', async()=>{
     try {
         await sequelize.authenticate()
-        console.log('serveur en marche sur http://www.oumardev.com:2500')
+        console.log('serveur en marche sur http://www.oumardev.com:1000')
     } catch (error) {
         console.log(error)
         console.log('error to connected server to database')

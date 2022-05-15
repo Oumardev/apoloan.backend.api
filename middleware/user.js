@@ -123,7 +123,7 @@ const refilUserAccount = async (req,res,next) =>{
         userAccount.solde += montant
 
         await userAccount.save()
-        return res.status(201).json({'Rechargement effectué: ' : userAccount})
+        return res.status(200).json({'Rechargement effectué: ' : userAccount})
 
     } catch (error) {
         return res.status(401).json({'message' : 'Erreur interne'})
@@ -137,7 +137,6 @@ const refilUserAccount = async (req,res,next) =>{
  */
 const debitUserAccount = async (req,res,next) =>{
     const { IDANNONCE } = req.body 
-   
     VerifyToken(req,res,next)
 
     const user = req.user
@@ -153,11 +152,11 @@ const debitUserAccount = async (req,res,next) =>{
             // si l'utilisateur en cour vois une annonce d'emprunt et qu'il veut donner de l'argent
 
             const senderUser = await User.findOne({where: {id: IDUSER}})
-            if(!senderUser) return res.status(401).json({'error' : 'Erreur interne'})
+            if(!senderUser) return res.status(401).json({'error' : 'Erreur intesne'})
             const senderAccount = await Compte.findOne({where: {id: senderUser.idCompte}})
     
             // on vérifie si le solde disponible sur le compte de l'expéditeur est suffisant
-            if(senderAccount.solde < annonceFound.montant ) return res.status(401).json({'error' : 'Impossible d\'effectué cette transaction solde insuffisant'})
+            if(senderAccount.solde < annonceFound.montant ) return res.status(401).json({'error' : 'Impossible d\'effectuer cette transaction solde insuffisant'})
     
             // on crédite le compte du receveur
             const recipientUser = await User.findOne({where: {id: annonceFound.codeUser}})
@@ -184,7 +183,7 @@ const debitUserAccount = async (req,res,next) =>{
             // on enregistre le pret
             await Emprunt.create({idContributeur : IDUSER , idAnnonce: annonceFound.id, idContrat : contratEmpt.id, statut : 'en cour'})
 
-            return res.status(201).json({'success': 'La transaction s\'est bien passé'})
+            return res.status(200).json({'success': 'La transaction s\'est bien passé'})
 
         } else {
             // si l'utilisateur en cour vois une annonce de contribution et qu'il veut emprunter
@@ -221,7 +220,7 @@ const debitUserAccount = async (req,res,next) =>{
             // on enregistre le pret
             await Emprunt.create({idContributeur: annonceFound.codeUser , idAnnonce: annonceFound.id, idContrat : contratEmpt.id, statut : 'en cour'})
 
-            return res.status(201).json({'success': 'La transaction s\'est bien passé'})
+            return res.status(200).json({'success': 'La transaction s\'est bien passé'})
         }
 
     } catch (error) {
@@ -285,7 +284,7 @@ const debitUserAccount = async (req,res,next) =>{
         pretFound.statut = 'rembousé'
         await pretFound.save()
 
-        return res.status(201).json({'success': 'La transaction s\'est bien passé'})
+        return res.status(200).json({'success': 'La transaction s\'est bien passé'})
 
     } catch (error) {
       //  console.log(error)
