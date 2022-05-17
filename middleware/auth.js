@@ -68,7 +68,7 @@ const login = async (req,res,next) =>{
             if(!data) return res.status(401).json({'error': 'Identifiant incorect'})
 
             const token = jwt.sign(userFound.dataValues,process.env.SECRET_TOKEN,{expiresIn : '1h'})
-
+            
             return res.status(200).json({'token': token, 'isLogin': true})
         })
 

@@ -549,7 +549,7 @@ app.patch('/apoloanapi/password',editPassword,(req,res)=>{})
  */
  app.delete('/apoloanapi/annonce',deleteAnnonce,(req,res)=>{})
 
-app.listen(1000,'86.107.197.161', async()=>{
+const server = app.listen(1000,'86.107.197.161', async()=>{
     try {
         await sequelize.authenticate()
         console.log('serveur en marche sur http://www.oumardev.com:1000')

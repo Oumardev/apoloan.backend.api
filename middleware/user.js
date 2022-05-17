@@ -7,42 +7,43 @@ const getUser = async (req,res,next) =>{
     VerifyToken(req,res,next)
 
     const user = req.user
-    if(!user) return res.status(401).json({'message':'Erreur interne'})
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
 
     const IDUSER = req.user.id
 
     try {
         const userFound = await User.findOne({where: {id: IDUSER}, include: Compte})
-        if(!userFound) return res.status(401).json({'message' : 'Erreur interne'})
+        if(!userFound) return res.status(401).json({'error' : 'Erreur interne'})
 
         return res.status(200).json({'user': userFound})   
 
     } catch (error) {
-        return res.status(401).json({'message' : 'Erreur interne'})
+        return res.status(401).json({'error' : 'Erreur interne'})
     }
 }
 
 const editUser = async (req,res,next) =>{
     const { nom, prenom, age, adresse, fonction } = req.body
-
+    console.log(req.body)
     VerifyToken(req,res,next)
+    const regex = /\d/;
 
     const user = req.user
-    if(!user) return res.status(401).json({'message':'Erreur interne'})
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
 
     const IDUSER = req.user.id
 
-    if( !nom || !prenom || !age || !adresse || !fonction ) return res.status(401).json({'message' : 'Veuillez saisir tout les champs'})
+    if( !nom || !prenom || !age || !adresse || !fonction ) return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
 
     // vérifie si les chaines de caractères sont composées uniquement que d'espace
-    if( nom.replace(/\s/g, '')=='' || prenom.replace(/\s/g, '')=='' || adresse.replace(/\s/g, '')=='' || fonction.replace(/\s/g, '')=='' ) return res.status(401).json({'message' : 'Veuillez saisir tout les champs'})
+    if( nom.replace(/\s/g, '')=='' || prenom.replace(/\s/g, '')=='' || adresse.replace(/\s/g, '')=='' || fonction.replace(/\s/g, '')=='' ) return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
 
     // vérifie si le nom ou le prenom contiennent des chiffres
-    if ( regex.test(nom) || regex.test(prenom) )  return res.status(401).json({'message' : 'Certaines informations ne doivent pas contenir des chiffres'})
+    if ( regex.test(nom) || regex.test(prenom) )  return res.status(401).json({'error' : 'Certaines informations ne doivent pas contenir des chiffres'})
 
     try {
         const userFound = await User.findOne({where: {id: IDUSER}})
-        if(!userFound) return res.status(401).json({'message' : 'Erreur interne'})
+        if(!userFound) return res.status(401).json({'error' : 'Erreur interne'})
 
         userFound.nom = nom
         userFound.prenom = prenom
@@ -54,42 +55,42 @@ const editUser = async (req,res,next) =>{
         return res.status(200).json({'Utilisateur modifié ': userFound})   
 
     } catch (error) {
-        return res.status(401).json({'message' : 'Erreur interne'})
+        return res.status(401).json({'error' : 'Erreur interne'})
     }
 }
 
 const editPassword = async (req,res,next) =>{
     const { oldPassword ,newPassword } = req.body
-
+    console.log(req.body)
     VerifyToken(req,res,next)
 
     const user = req.user
-    if(!user) return res.status(401).json({'message':'Erreur interne'})
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
     const IDUSER = req.user.id
 
-    if (newPassword.length < 8) return res.status(401).json({'message' : 'Le mot de passe doit contenir au moins 8 caractères'})
+    if (newPassword.length < 8) return res.status(401).json({'error' : 'Le mot de passe doit contenir au moins 8 caractères'})
 
     try {
         const userFound = await User.findOne({where: {id: IDUSER}})
-        if(!userFound) return res.status(401).json({'message' : 'Erreur interne'})
+        if(!userFound) return res.status(401).json({'error' : 'Erreur interne'})
 
         bcrypt.compare(userFound.password, oldPassword, (err, data)=>{
-            if(err) return res.status(401).json({'message' : 'Erreur interne'})
+            if(err) return res.status(401).json({'error' : 'Erreur interne'})
 
-            if(!data) return res.status(401).json({'message' : 'Votre mot de passe actuel n\'est pas valide'})
+            if(!data) return res.status(401).json({'error' : 'Votre mot de passe actuel n\'est pas valide'})
 
             bcrypt.hash(newPassword, 10, async (err, hashPassword)=>{
-                if(err) return res.status(401).json({'message' : 'Erreur interne'})
+                if(err) return res.status(401).json({'error' : 'Erreur interne'})
 
                 userFound.password = hashPassword
                 await userFound.save()
-                return res.status(200).json({message : 'Mot de passe modifié'}) 
+                return res.status(200).json({'success' : 'Mot de passe modifié'}) 
             })
 
         })
 
     } catch (error) {
-        return res.status(401).json({'message' : 'Erreur interne'})
+        return res.status(401).json({'error' : 'Erreur interne'})
     }
 }
 
@@ -99,11 +100,10 @@ const editPassword = async (req,res,next) =>{
  */
 const refilUserAccount = async (req,res,next) =>{
     const { montant } = req.body
-
     VerifyToken(req,res,next)
 
     const user = req.user
-    if(!user) return res.status(401).json({'message':'Erreur interne'})
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
     const IDUSER = req.user.id
 
     /**
@@ -115,10 +115,10 @@ const refilUserAccount = async (req,res,next) =>{
 
     try {
         const userFound = await User.findOne({where: {id: IDUSER}})
-        if(!userFound) return res.status(401).json({'message' : 'Erreur interne'})
+        if(!userFound) return res.status(400).json({'error' : 'Erreur interne'})
 
         const userAccount = await Compte.findOne({where: {id: userFound.idCompte}})
-        if(!userAccount) return res.status(401).json({'message' : 'Le compte a une erreur'})
+        if(!userAccount) return res.status(400).json({'error' : 'Le compte a une erreur'})
 
         userAccount.solde += montant
 
@@ -126,7 +126,7 @@ const refilUserAccount = async (req,res,next) =>{
         return res.status(200).json({'Rechargement effectué: ' : userAccount})
 
     } catch (error) {
-        return res.status(401).json({'message' : 'Erreur interne'})
+        return res.status(400).json({'error' : 'Erreur interne'})
     }
 }
 
@@ -248,7 +248,7 @@ const debitUserAccount = async (req,res,next) =>{
         // on recupère les information sur l'annonce
         const annonceFound = await Annonce.findOne({where: {id: pretFound.idAnnonce}})
         if(!annonceFound) return res.status(401).json({'error' : 'Erreur interne'})
-
+        
         // on calcule le montant totale du rembourssement avec frais
         const MONTANT_TOTAL = annonceFound.montant + (annonceFound.montant * annonceFound.pourcentage)
 
@@ -281,8 +281,9 @@ const debitUserAccount = async (req,res,next) =>{
         await empt.save()
 
         // on modifie le status du pret
-        pretFound.statut = 'rembousé'
-        await pretFound.save()
+        const pt = await Pret.findOne({where : {idContrat : pretFound.idContrat}})
+        pt.statut = 'rembousé'
+        await pt.save()
 
         return res.status(200).json({'success': 'La transaction s\'est bien passé'})
 
