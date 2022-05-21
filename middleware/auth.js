@@ -18,7 +18,7 @@ const register = (req,res,next) =>{
     if (regex.test(nom) || regex.test(prenom) || regex.test(sexe))  return res.status(401).json({'error' : 'Certaines informations ne doivent pas contenir des chiffres'})
  
     // vérifie si numéro contient des letttres
-    if (!Number.isInteger(numero)) return res.status(401).json({'error' : 'Certaines informations ne doivent pas contenir des lettres'})
+    if (!Number.isInteger(numero) || !Number.isInteger(numeroCNI)) return res.status(401).json({'error' : 'Certaines informations ne doivent pas contenir des lettres'})
 
     // insertion
     try {
