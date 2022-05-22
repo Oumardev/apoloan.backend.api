@@ -19,7 +19,7 @@ const swaggerOptions = {
       info: {
         title: "APOLOAN API DOCUMENTATION",
         version: '2.0.1',
-        description : 'Apoloan est une plateforme Peer to Peer qui permet aux membres d\'accéder ou fournir facilement des fonds à court terme pour des besoins immédiats de facon discrèt et sécurisé.',
+        description : 'Apoloan est une plateforme Peer to Peer qui permet aux membres d\'accéder ou fournir facilement des fonds à court terme pour des besoins immédiats de facon discrèt et sécurisée .',
         url: "http://localhost:4000/todos",
         contact: {
             name: "Oumar CISSE", // your name
