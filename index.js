@@ -548,5 +548,3 @@ const server = app.listen(1000,'86.107.197.161', async()=>{
         console.log('error to connected server to database')
     }
 })
-
-//gnom//kde
