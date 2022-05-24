@@ -33,9 +33,8 @@ const register = (req,res,next) =>{
                 const usr = await User.create({ nom, prenom, numero, password, idCompte })
                 if(!usr) return res.status(401).json({'error':'Utilisateur ne peut etre crée'})
                 
-                console.log('usr',usr)
-                //const token = jwt.sign(usr.dataValues,process.env.SECRET_TOKEN,{expiresIn : '1h'})
-                //return res.status(200).json({'token': token, 'isLogin': true})
+                const token = jwt.sign(usr.dataValues,process.env.SECRET_TOKEN,{expiresIn : '1h'})
+                return res.status(200).json({'token': token, 'isLogin': true})
 
             } catch (error) {
                 return res.status(401).json({'error':'Cet numéro existe déja'})
