@@ -25,8 +25,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey:'idCompte',
         onDelete: 'CASCADE'
       })
-
     }
+    // toJSON(){
+    //   return {...this.get(), password : undefined, id: undefined, idCompte: undefined}
+    // }
   }
   User.init({
     nom: DataTypes.STRING,
