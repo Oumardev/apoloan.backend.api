@@ -15,13 +15,14 @@ module.exports = {
         type: Sequelize.STRING
       },
       isActivated: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
       },
       numero: {
         type: Sequelize.INTEGER,
         unique: true
       },
-      age: {
+      atnaissance: {
         type: Sequelize.INTEGER
       },
       sexe: {
