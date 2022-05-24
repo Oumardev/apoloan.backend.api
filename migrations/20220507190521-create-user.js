@@ -14,6 +14,9 @@ module.exports = {
       prenom: {
         type: Sequelize.STRING
       },
+      isActivated: {
+        type: Sequelize.BOOLEAN
+      },
       numero: {
         type: Sequelize.INTEGER,
         unique: true
