@@ -20,7 +20,7 @@ const swaggerOptions = {
         title: "APOLOAN API DOCUMENTATION",
         version: '2.0.1',
         description : 'Apoloan est une plateforme Peer to Peer qui permet aux membres d\'accéder ou fournir facilement des fonds à court terme pour des besoins immédiats de facon discrèt et sécurisée.',
-        url: "http://localhost:4000/todos",
+        url: "http://www.oumardev.com",
         contact: {
             name: "Oumar CISSE", // your name
             url: "http://www.oumardev.com", // your website
@@ -78,16 +78,6 @@ app.use('/apoloanapi-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs,options
  *           prenom:
  *              type: string
  *           numero:
- *              type: integer
- *           age:
- *              type: integer
- *           sexe:
- *              type: string
- *           adresse:
- *              type: string
- *           fonction:
- *              type: string 
- *           numeroCNI:
  *              type: integer
  *           password:
  *              type: string    
