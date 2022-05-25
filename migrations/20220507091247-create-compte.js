@@ -11,6 +11,10 @@ module.exports = {
       solde: {
         type: Sequelize.FLOAT
       },
+      idbankaccount:{
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

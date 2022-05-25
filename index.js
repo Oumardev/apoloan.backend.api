@@ -14,6 +14,9 @@ app.use(bodyParser.json())
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
 
+const IP_ADDRESS = process.env.ENVIRONMENT == 'DEVELOPMENT' ? process.env.LOCAL_ADDRESS : process.env.SERVER_ADDRESS
+const PORT = process.env.ENVIRONMENT == 'DEVELOPMENT' ? process.env.LOCAL_PORT : process.env.SERVER_PORT
+
 const swaggerOptions = {
     swaggerDefinition: {
       info: {
@@ -539,10 +542,10 @@ app.patch('/apoloanapi/password',editPassword,(req,res)=>{})
  */
  app.delete('/apoloanapi/annonce',deleteAnnonce,(req,res)=>{})
 
-const server = app.listen(1000,'86.107.197.161', async()=>{
+const server = app.listen(PORT, IP_ADDRESS,async()=>{
     try {
         await sequelize.authenticate()
-        console.log('serveur en marche sur http://www.oumardev.com:1000')
+        console.log(`serveur en marche sur http://${IP_ADDRESS}:${PORT}`)
     } catch (error) {
         console.log(error)
         console.log('error to connected server to database')
