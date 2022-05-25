@@ -5,21 +5,21 @@ module.exports = {
       "username": process.env.USERNAME_DB,
       "password": process.env.PASSWD_DB,
       "database": process.env.DB_NAME,
-      "host": process.env.DB_HOST,
+      "host": '127.0.0.1',
       "dialect": "mysql"
   },
   "test": {
     "username": process.env.USERNAME_DB,
     "password": process.env.PASSWD_DB,
     "database": process.env.DB_NAME,
-    "host": process.env.DB_HOST,
+    "host": '127.0.0.1',
     "dialect": "mysql"
   },
   "production": {
     "username": process.env.USERNAME_DB,
     "password": process.env.PASSWD_DB,
     "database": process.env.DB_NAME,
-    "host": process.env.DB_HOST,
+    "host": '127.0.0.1',
     "dialect": "mysql"
   }
 };
