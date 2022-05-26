@@ -7,6 +7,7 @@ const { register, login } = require('./middleware/auth')
 const { createAnnonce, listAnnonce, patchAnnonce, deleteAnnonce } = require('./middleware/annonce')
 const { listPret } = require('./middleware/pret')
 const { listEmprunt } = require('./middleware/emprunt')
+const { fetchtoecobank } = require('./middleware/ecobank')
 const { getUser, editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount } = require('./middleware/user')
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
@@ -123,6 +124,7 @@ app.post('/apoloanapi/register',register,(req,res)=>{
  *                type: boolean
  */
 app.post('/apoloanapi/login',login,(req,res)=>{})
+app.post('/apoloanapi/fetchtoecobank',fetchtoecobank,(req,res)=>{})
 
 /**
  * @swagger
