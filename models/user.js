@@ -11,13 +11,18 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE'
       })
 
-      User.hasMany(models.Emprunt,{
+      User.hasMany(models.Transaction,{
         foreignKey: 'idContributeur',
         onDelete: 'CASCADE'
       })
 
-      User.hasMany(models.Pret,{
-        foreignKey: 'idDemandeur',
+      User.hasMany(models.Transaction,{
+        foreignKey: 'idEmprunteur',
+        onDelete: 'CASCADE'
+      })
+
+      User.hasMany(models.Proposition,{
+        foreignKey: 'idProposant',
         onDelete: 'CASCADE'
       })
 
@@ -37,7 +42,10 @@ module.exports = (sequelize, DataTypes) => {
       type : DataTypes.INTEGER,
       unique : true
     },
-    atnaissance: DataTypes.INTEGER,
+    photo:{
+      type : DataTypes.BLOB
+    },
+    atnaissance: DataTypes.STRING,
     sexe: DataTypes.STRING,
     adresse: DataTypes.STRING,
     isActivated: DataTypes.BOOLEAN,

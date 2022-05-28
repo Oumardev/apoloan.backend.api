@@ -1,4 +1,4 @@
-const { Pret, User, Contrat, Annonce } = require('../models')
+const { Transaction, User, Contrat, Annonce } = require('../models')
 const { VerifyToken } = require('./verifyToken')
 const { Op } = require("sequelize");
 
@@ -10,9 +10,9 @@ const listEmprunt = async (req,res,next) =>{
 
     try {
 
-        const listEmpr = await Pret.findAll({
+        const listEmpr = await Transaction.findAll({
             where: {
-                idDemandeur: {                         
+                idEmprunteur: {                         
                     [Op.eq]: user.id,   
                 }
             },

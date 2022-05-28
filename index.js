@@ -11,6 +11,25 @@ const { fetchtoecobank } = require('./middleware/ecobank')
 const { getUser, editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount } = require('./middleware/user')
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
+app.use(express.static('public'));
+const multer = require('multer')
+const uidcontratname = () =>{
+    const head = Date.now().toString(36)
+    const tail = Math.random().toString(36).substring(2)
+
+    return head + tail + '.pdf'
+}
+
+var storage = multer.diskStorage({   
+    destination: function(req, file, cb) { 
+       cb(null, './contratdocuments');    
+    }, 
+    filename: function (req, file, cb) { 
+       cb(null , uidcontratname());   
+    }
+ });
+
+ const upload = multer({ storage: storage})
 
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
@@ -90,6 +109,14 @@ app.use('/apoloanapi-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs,options
 app.post('/apoloanapi/register',register,(req,res)=>{
     return res.status(200).json({'success':'Utilisateur crée veuillez vous authentifier'})
 })
+
+app.use('/contrat', express.static(__dirname + '/contratpage'));
+
+app.post('/savecontrat', (req,res)=>{
+   // console.log(req.body)
+});
+
+app.post("/upload_files", upload.single("file") , function (req, res) {});
 
 /**
  * @swagger

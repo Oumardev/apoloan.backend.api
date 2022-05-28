@@ -11,11 +11,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey : 'codeUser',
         onDelete : 'CASCADE'
       })
-
-      Annonce.hasMany(models.Emprunt,{
-        foreignKey: 'idContributeur',
-        onDelete: 'CASCADE'
-      })
     }
   }
   Annonce.init({

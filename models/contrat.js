@@ -11,20 +11,19 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       
-      Contrat.hasMany(models.Emprunt,{
+      Contrat.hasMany(models.Proposition,{
         foreignKey: 'idContrat',
         onDelete: 'CASCADE'
       })
 
-      Contrat.hasMany(models.Pret,{
-        foreignKey: 'idContrat',
-        onDelete: 'CASCADE'
-      })
     }
   }
 
   Contrat.init({
-    nom: DataTypes.STRING
+    document: DataTypes.BLOB,
+    modalitePaiement: DataTypes.STRING,
+    signatureCreantier: DataTypes.BLOB,
+    signatureDebiteur: DataTypes.BLOB,
   }, {
     sequelize,
     modelName: 'Contrat',

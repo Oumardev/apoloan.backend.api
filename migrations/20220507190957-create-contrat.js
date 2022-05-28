@@ -8,8 +8,17 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      nom: {
+      document: {
+        type: Sequelize.BLOB
+      },
+      modalitePaiement: {
         type: Sequelize.STRING
+      },
+      signatureCreantier: {
+        type: Sequelize.BLOB
+      },
+      signatureDebiteur: {
+        type: Sequelize.BLOB
       },
       createdAt: {
         allowNull: false,

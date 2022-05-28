@@ -1,4 +1,4 @@
-const { User, Compte, Annonce, Emprunt, Contrat, Pret } = require('../models')
+const { User, Compte, Annonce, Emprunt, Contrat, Pret, Proposition } = require('../models')
 const { VerifyToken } = require('./verifyToken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
@@ -94,10 +94,6 @@ const editPassword = async (req,res,next) =>{
     }
 }
 
-/**
- * Cette fonction s'éxécutera quand un utilisateur
- * effectuera un rechargement
- */
 const refilUserAccount = async (req,res,next) =>{
     const { montant } = req.body
     VerifyToken(req,res,next)
@@ -130,11 +126,95 @@ const refilUserAccount = async (req,res,next) =>{
     }
 }
 
-/**
- * Cette fonction s'exécutera quand un contributeur 
- * prendra part a une annonce de type ['EMPRUNTEUR'] 
- * ou quand un emprunteur prendra part a une annonce de type ['CONTRIBUTEUR']
- */
+const toPropose = async (req,res,next) =>{
+    const { IDANNONCE } = req.body 
+    VerifyToken(req,res,next)
+
+    const user = req.user
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
+    const IDUSER = req.user.id // IDUSER utilisateur en cour ...
+
+    try {
+        // on recherche si user a déja proposé a cette annonce
+        const propst = await Proposition.findOne({
+            where: {
+                [Op.and]: [{ idProposant: IDUSER }, { idAnnonce: IDANNONCE }]
+            }
+        })
+        if(propst) return res.status(401).json({'error':'Vous avez déja proposé sur cette annonce'})
+
+        // on génère le contrat pour ensuite le proposer
+        
+
+        const resc = await Proposition.create({idAnnonce:IDANNONCE, idProposant:IDUSER, status: 'en attente' })
+        if(!resc) return res.status(401).json({'error':'Erreur interne'})
+
+        return res.status(200).json({'message':'Votre proposition a été envoyé elle sera supprimé automatiquement si l\'utilisateur la rejette'})
+
+    } catch (error) {
+        return res.status(401).json({'error':'Erreur interne'})
+    }
+}
+
+const deleteProposition = async (req,res,nest) =>{
+    const { IDPROPOSITION } = req.body 
+    VerifyToken(req,res,next)
+
+    const user = req.user
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
+    
+    try {
+        const prosdel = await Proposition.destroy({where : {id : IDPROPOSITION}})
+        if(!prosdel) return res.status(401).json({'error':'Erreur interne'})
+
+        return res.status(200).json({'message':'La proposition a été supprimé'})
+    } catch (error) {
+        
+    }
+
+}
+
+const resToPropose = async(req,res,next) =>{
+    const { IDPROPOSITION, RESPONSE } = req.body 
+    VerifyToken(req,res,next)
+
+    const user = req.user
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
+    const IDUSER = req.user.id // IDUSER utilisateur en cour ...
+
+    try {
+        const proposition = Proposition.findOne({where:{id: IDPROPOSITION}})
+        if(!proposition) return res.status(401).json({'error':'Erreur interne'})
+        await proposition.save()
+
+        if(RESPONSE == 'rejeter'){
+            const prosdel = await Proposition.destroy({where : {id : IDPROPOSITION}})
+            if(!prosdel) return res.status(401).json({'error':'Erreur interne'})
+
+            return res.status(200).json({'message':'La proposition a été rejeté'})
+        }
+
+        if(RESPONSE == 'accepter'){
+            const prosdel = await Proposition.destroy({where : {idAnnonce : proposition.idAnnonce}})
+            if(!prosdel) return res.status(401).json({'error':'Erreur interne'})
+
+            return res.status(200).json({'message':'La proposition a été accepté veuillez continuer la procédure dans le menu contrat'})
+        }
+
+        return res.status(200).json({'message':'Opération réussite'})
+    } catch (error) {
+        return res.status(401).json({'error':'Erreur interne'})
+    }
+}
+
+const genContrat = async(req,res,next) =>{
+
+}
+
+const showContrat = async (req,res,next) =>{
+
+}
+
 const debitUserAccount = async (req,res,next) =>{
     const { IDANNONCE } = req.body 
     VerifyToken(req,res,next)
@@ -228,10 +308,6 @@ const debitUserAccount = async (req,res,next) =>{
     }
 }
 
-/**
- * Cette fonction s'exécutera quand un emprunteur 
- * devra remboursser avec pourcentage un pret 
- */
  const refundUserAccount = async (req,res,next) =>{
     const { IDPRET } = req.body
     

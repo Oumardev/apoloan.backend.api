@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Compte.init({
     solde: DataTypes.FLOAT,
+    plafond: DataTypes.FLOAT,
     idbankaccount : DataTypes.INTEGER
   }, {
     sequelize,

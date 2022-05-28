@@ -11,6 +11,9 @@ module.exports = {
       nom: {
         type: Sequelize.STRING
       },
+      photo:{
+        type: Sequelize.BLOB
+      },
       prenom: {
         type: Sequelize.STRING
       },
@@ -23,7 +26,7 @@ module.exports = {
         unique: true
       },
       atnaissance: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       sexe: {
         type: Sequelize.STRING
