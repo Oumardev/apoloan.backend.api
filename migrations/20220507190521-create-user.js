@@ -14,6 +14,9 @@ module.exports = {
       photo:{
         type: Sequelize.BLOB
       },
+      signature:{
+        type: Sequelize.BLOB
+      },
       prenom: {
         type: Sequelize.STRING
       },

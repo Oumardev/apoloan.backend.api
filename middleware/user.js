@@ -2,6 +2,7 @@ const { User, Compte, Annonce, Emprunt, Contrat, Pret, Proposition } = require('
 const { VerifyToken } = require('./verifyToken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
+const jwt = require('jsonwebtoken')
 
 const getUser = async (req,res,next) =>{
     VerifyToken(req,res,next)
@@ -208,7 +209,20 @@ const resToPropose = async(req,res,next) =>{
 }
 
 const genContrat = async(req,res,next) =>{
+    VerifyToken(req,res,next)
+    const user = req.user
+    if(!user) return res.status(401).json({'error':'Erreur interne token invalide'})
 
+    const linktoken = jwt.sign({user},process.env.SECRET_TOKEN_CONTRAT,{expiresIn : '2m'})
+    req.link = linktoken
+    next()
+}
+
+const addSignature = async(req,res,next) =>{
+    VerifyToken(req,res,next)
+    const user = req.user
+    if(!user) return res.status(401).json({'error':'Erreur interne token invalide'})
+    next()
 }
 
 const showContrat = async (req,res,next) =>{
@@ -369,4 +383,4 @@ const debitUserAccount = async (req,res,next) =>{
     }
 }
 
-module.exports = { getUser , editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount }
+module.exports = { getUser , editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount, genContrat, addSignature }

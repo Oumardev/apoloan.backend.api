@@ -50,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
     adresse: DataTypes.STRING,
     isActivated: DataTypes.BOOLEAN,
     fonction: DataTypes.STRING,
+    signature: DataTypes.BLOB,
     numeroCNI: {
       type : DataTypes.INTEGER,
       unique : true

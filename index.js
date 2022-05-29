@@ -8,10 +8,12 @@ const { createAnnonce, listAnnonce, patchAnnonce, deleteAnnonce } = require('./m
 const { listPret } = require('./middleware/pret')
 const { listEmprunt } = require('./middleware/emprunt')
 const { fetchtoecobank } = require('./middleware/ecobank')
-const { getUser, editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount } = require('./middleware/user')
+const { getUser, editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount, genContrat, addSignature } = require('./middleware/user')
 app.use(bodyParser.urlencoded({extended: true}))
+const jwt = require('jsonwebtoken')
 app.use(bodyParser.json())
 app.use(express.static('public'));
+
 const multer = require('multer')
 const uidcontratname = () =>{
     const head = Date.now().toString(36)
@@ -110,11 +112,23 @@ app.post('/apoloanapi/register',register,(req,res)=>{
     return res.status(200).json({'success':'Utilisateur crée veuillez vous authentifier'})
 })
 
-app.use('/contrat', express.static(__dirname + '/contratpage'));
+const checkconttat = (req,res,next) =>{
+    const URL = req.query.urltemp
+    jwt.verify(URL, process.env.SECRET_TOKEN_CONTRAT, (err, bool)=>{
+        if(err) return res.send('error')
+        if(bool) next()
+        else return res.send('Access denied')
+    })
+}
+app.use('/cosntr', checkconttat ,express.static(__dirname + '/contratpage'));
+app.get('/contrat',genContrat, (req,res) =>{
+    return res.redirect(`/cosntr?urltemp=${req.link}`);
+})
 
-app.post('/savecontrat', (req,res)=>{
-   // console.log(req.body)
-});
+//app.use('/signature',express.static(__dirname + '/signaturepage'));
+app.post('/addsignature',addSignature, (req,res)=>{
+    console.log(req.body)
+ });
 
 app.post("/upload_files", upload.single("file") , function (req, res) {});
 
