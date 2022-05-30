@@ -8,7 +8,7 @@ const { createAnnonce, listAnnonce, patchAnnonce, deleteAnnonce } = require('./m
 const { listPret } = require('./middleware/pret')
 const { listEmprunt } = require('./middleware/emprunt')
 const { fetchtoecobank } = require('./middleware/ecobank')
-const { getUser, editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount, genContrat, addSignature } = require('./middleware/user')
+const { getUser, editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount, genContrat, addSignature, getSignature } = require('./middleware/user')
 app.use(bodyParser.urlencoded({extended: true}))
 const jwt = require('jsonwebtoken')
 app.use(bodyParser.json())
@@ -18,7 +18,6 @@ const multer = require('multer')
 const uidcontratname = () =>{
     const head = Date.now().toString(36)
     const tail = Math.random().toString(36).substring(2)
-
     return head + tail + '.pdf'
 }
 
@@ -31,7 +30,7 @@ var storage = multer.diskStorage({
     }
  });
 
- const upload = multer({ storage: storage})
+const upload = multer({ storage: storage})
 
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
@@ -120,15 +119,20 @@ const checkconttat = (req,res,next) =>{
         else return res.send('Access denied')
     })
 }
-app.use('/cosntr', checkconttat ,express.static(__dirname + '/contratpage'));
+
+app.use('/cosntr', /*checkconttat ,*/express.static(__dirname + '/contratpage'));
 app.get('/contrat',genContrat, (req,res) =>{
     return res.redirect(`/cosntr?urltemp=${req.link}`);
 })
 
-//app.use('/signature',express.static(__dirname + '/signaturepage'));
+app.use('/signature',express.static(__dirname + '/signaturepage'));
 app.post('/addsignature',addSignature, (req,res)=>{
-    console.log(req.body)
- });
+    console.log(req)
+});
+
+app.get('/apoloanapi/getsignature',getSignature,(req,res)=>{
+   // res.send(`<img src="data:image/png;base64,${req.signature }" />`)  
+})
 
 app.post("/upload_files", upload.single("file") , function (req, res) {});
 

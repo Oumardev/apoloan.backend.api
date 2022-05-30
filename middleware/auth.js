@@ -58,8 +58,11 @@ const login = async (req,res,next) =>{
     // search user
     try {
         
-        var userFound = await User.findOne({where: {'numero': numero}})
-
+        var userFound = await User.findOne({
+            where: {'numero': numero},
+            attributes: {exclude: ['signature']},
+        })
+        
         if(!userFound) return res.status(401).json({'error': 'Identifiant incorect'})
 
         const prevPassword = userFound.dataValues.password
@@ -75,7 +78,7 @@ const login = async (req,res,next) =>{
         })
 
     } catch (error) {
-        return res.status(401).json({'error':'Erreur interne'})
+        return res.status(401).json({'error':'Erreur internse',error})
     }
     
 }

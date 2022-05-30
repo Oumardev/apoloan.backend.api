@@ -115,6 +115,23 @@
     document.getElementById("canvasimg").style.display = "inline";
  }
 
+  function loadsign() {
+    document.getElementById("canvasimg").style.border = "2px solid";
+    var dataURL = canvas.toDataURL();
+        fetch('/apoloanapi/user', {
+            method: "GET",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bear '
+            },
+            mode: "cors",
+            credentials: "same-origin", 
+        });
+    document.getElementById("canvasimg").src = dataURL;
+    document.getElementById("canvasimg").style.display = "inline";
+ }
+
  function toDataURL(url, callback) {
     var xhr = new XMLHttpRequest();
     xhr.onload = function() {

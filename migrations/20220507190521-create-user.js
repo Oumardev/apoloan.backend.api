@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.BLOB
       },
       signature:{
-        type: Sequelize.BLOB
+        type: Sequelize.TEXT
       },
       prenom: {
         type: Sequelize.STRING

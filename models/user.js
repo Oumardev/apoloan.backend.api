@@ -31,9 +31,6 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE'
       })
     }
-    // toJSON(){
-    //   return {...this.get(), password : undefined, id: undefined, idCompte: undefined}
-    // }
   }
   User.init({
     nom: DataTypes.STRING,
@@ -50,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
     adresse: DataTypes.STRING,
     isActivated: DataTypes.BOOLEAN,
     fonction: DataTypes.STRING,
-    signature: DataTypes.BLOB,
+    signature: DataTypes.TEXT,
     numeroCNI: {
       type : DataTypes.INTEGER,
       unique : true

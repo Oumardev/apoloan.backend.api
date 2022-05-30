@@ -15,11 +15,31 @@ const getUser = async (req,res,next) =>{
     try {
         const userFound = await User.findOne({where: {id: IDUSER}, include: Compte})
         if(!userFound) return res.status(401).json({'error' : 'Erreur interne'})
-
         return res.status(200).json({'user': userFound})   
 
     } catch (error) {
         return res.status(401).json({'error' : 'Erreur interne'})
+    }
+}
+
+const getSignature = async (req,res,next) =>{
+    // VerifyToken(req,res,next)
+    // const user = req.user
+    // if(!user) return res.status(401).json({'error':'Erreur interne'})
+    // const IDUSER = req.user.id
+
+    try {
+        const userFound = await User.findOne({
+            where: {id: 1}, 
+            attributes: ['id','signature'],
+        })
+
+        if(!userFound) return res.status(401).json({'error' : 'Erreur interne'})
+
+        return res.status(200).json({'signature': userFound.signature })   
+
+    } catch (error) {
+        return res.status(401).json({'error' : 'Erreur internse',error})
     }
 }
 
@@ -209,10 +229,11 @@ const resToPropose = async(req,res,next) =>{
 }
 
 const genContrat = async(req,res,next) =>{
-    VerifyToken(req,res,next)
-    const user = req.user
-    if(!user) return res.status(401).json({'error':'Erreur interne token invalide'})
+    // VerifyToken(req,res,next)
+    // const user = req.user
+    // if(!user) return res.status(401).json({'error':'Erreur interne token invalide'})
 
+    const user = User.findOne({id:1})
     const linktoken = jwt.sign({user},process.env.SECRET_TOKEN_CONTRAT,{expiresIn : '2m'})
     req.link = linktoken
     next()
@@ -221,13 +242,18 @@ const genContrat = async(req,res,next) =>{
 const addSignature = async(req,res,next) =>{
     VerifyToken(req,res,next)
     const user = req.user
+    const { signature } = req.body
     if(!user) return res.status(401).json({'error':'Erreur interne token invalide'})
-    next()
+
+    const usr = await User.findOne({id: user.id})
+    usr.signature = signature
+    const sgn = await usr.save()
+    if(!sgn) return res.status(401).json({'error':'Erreur interne token invalide'})
+
+    return res.status(200).json({'message':'Votre signature a été enregsitré'})
 }
 
-const showContrat = async (req,res,next) =>{
-
-}
+const showContrat = async (req,res,next) =>{}
 
 const debitUserAccount = async (req,res,next) =>{
     const { IDANNONCE } = req.body 
@@ -383,4 +409,6 @@ const debitUserAccount = async (req,res,next) =>{
     }
 }
 
-module.exports = { getUser , editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount, genContrat, addSignature }
+
+
+module.exports = { getUser , editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount, genContrat, addSignature, getSignature }
