@@ -11,14 +11,11 @@ module.exports = {
       document: {
         type: Sequelize.BLOB
       },
-      modalitePaiement: {
-        type: Sequelize.STRING
-      },
       signatureCreantier: {
-        type: Sequelize.BLOB
+        type: Sequelize.TEXT
       },
       signatureDebiteur: {
-        type: Sequelize.BLOB
+        type: Sequelize.TEXT
       },
       createdAt: {
         allowNull: false,

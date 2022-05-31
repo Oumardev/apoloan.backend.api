@@ -20,10 +20,9 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   Contrat.init({
-    document: DataTypes.BLOB,
-    modalitePaiement: DataTypes.STRING,
-    signatureCreantier: DataTypes.BLOB,
-    signatureDebiteur: DataTypes.BLOB,
+    document: DataTypes.TEXT,
+    signatureCreantier: DataTypes.TEXT,
+    signatureDebiteur: DataTypes.TEXT,
   }, {
     sequelize,
     modelName: 'Contrat',

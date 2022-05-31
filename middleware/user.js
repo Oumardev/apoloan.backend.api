@@ -1,8 +1,9 @@
-const { User, Compte, Annonce, Emprunt, Contrat, Pret, Proposition } = require('../models')
+const { User, Compte, Annonce, Emprunt, Contrat, Pret, Proposition, Transaction } = require('../models')
 const { VerifyToken } = require('./verifyToken')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const jwt = require('jsonwebtoken')
+const { Op } = require("sequelize");
 
 const getUser = async (req,res,next) =>{
     VerifyToken(req,res,next)
@@ -23,14 +24,14 @@ const getUser = async (req,res,next) =>{
 }
 
 const getSignature = async (req,res,next) =>{
-    // VerifyToken(req,res,next)
-    // const user = req.user
-    // if(!user) return res.status(401).json({'error':'Erreur interne'})
-    // const IDUSER = req.user.id
+    VerifyToken(req,res,next)
+    const user = req.user
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
+    const IDUSER = req.user.id
 
     try {
         const userFound = await User.findOne({
-            where: {id: 1}, 
+            where: {id: IDUSER}, 
             attributes: ['id','signature'],
         })
 
@@ -147,7 +148,19 @@ const refilUserAccount = async (req,res,next) =>{
     }
 }
 
+const genContrat = async(req,res) =>{
+
+    const user = req.user
+    if(!user) return res.status(401).json({'error':'Erreur interne token invalide'})
+    const linktoken = jwt.sign({user},process.env.SECRET_TOKEN_CONTRAT,{expiresIn : '2d'})
+
+    return `/cosntr?urltemp=${linktoken}`
+}
+
 const toPropose = async (req,res,next) =>{
+    /**
+     * popup : L'orsque vous enregistrer une signature vos contrats serons signé automatiquement l'orsque vous faites une proposition
+     */
     const { IDANNONCE } = req.body 
     VerifyToken(req,res,next)
 
@@ -156,21 +169,51 @@ const toPropose = async (req,res,next) =>{
     const IDUSER = req.user.id // IDUSER utilisateur en cour ...
 
     try {
+        // on recherche pour voir si l'uilisateur a enregistré une signature dans sa table
+        const usr = await User.findOne({ id : IDUSER })
+        let contrat = null
+        if(!user.signature) return res.status(401).json({'error':'Vous devez enregistrer une signature avant de commencer la suite de l\'opération'})
+        
         // on recherche si user a déja proposé a cette annonce
         const propst = await Proposition.findOne({
             where: {
                 [Op.and]: [{ idProposant: IDUSER }, { idAnnonce: IDANNONCE }]
             }
         })
-        if(propst) return res.status(401).json({'error':'Vous avez déja proposé sur cette annonce'})
-
-        // on génère le contrat pour ensuite le proposer
+        if(propst) return res.status(401).json({'error':'Vous ne pouvez pas proposer sur cette annonce'})
         
+        // on recherche le type de l'annonce 
+        const annonce = await Annonce.findOne({where: {
+            id : IDANNONCE
+        }})            
+        if(annonce.type == 'EMPRUNT'){
+            // on génère le contrat 
+            contrat = await Contrat.create({
+                document : genContrat(req,res),
+                signatureCreantier : user.signature,
+                signatureDebiteur : null
+            })
+        }else{
+            // on génère le contrat 
+            contrat = await Contrat.create({
+                document : genContrat(req,res),
+                signatureCreantier : null,
+                signatureDebiteur : user.signature
+            })
+        }
 
-        const resc = await Proposition.create({idAnnonce:IDANNONCE, idProposant:IDUSER, status: 'en attente' })
+        // on créer la proposition
+        const resc = await Proposition.create({
+            idAnnonce:IDANNONCE, 
+            idProposant:IDUSER, 
+            idContrat : contrat.id,
+            status: 'en attente' 
+        })
+
         if(!resc) return res.status(401).json({'error':'Erreur interne'})
-
-        return res.status(200).json({'message':'Votre proposition a été envoyé elle sera supprimé automatiquement si l\'utilisateur la rejette'})
+        return res.status(200).json({
+            'message':'Votre proposition a été envoyé elle sera supprimé automatiquement si l\'utilisateur la rejette'
+        })
 
     } catch (error) {
         return res.status(401).json({'error':'Erreur interne'})
@@ -185,14 +228,19 @@ const deleteProposition = async (req,res,nest) =>{
     if(!user) return res.status(401).json({'error':'Erreur interne'})
     
     try {
-        const prosdel = await Proposition.destroy({where : {id : IDPROPOSITION}})
+
+        const prosdel = await Proposition.findOne({where : {id : IDPROPOSITION}})
         if(!prosdel) return res.status(401).json({'error':'Erreur interne'})
+
+        const contrat = await Contrat.destroy({where : {id : prosdel.idContrat}})
+        if(!contrat) return res.status(401).json({'error':'Erreur interne'})
+
+        await prosdel.destroy()
 
         return res.status(200).json({'message':'La proposition a été supprimé'})
     } catch (error) {
-        
+        return res.status(400).json({'error' : 'Erreur interne'})
     }
-
 }
 
 const resToPropose = async(req,res,next) =>{
@@ -206,7 +254,7 @@ const resToPropose = async(req,res,next) =>{
     try {
         const proposition = Proposition.findOne({where:{id: IDPROPOSITION}})
         if(!proposition) return res.status(401).json({'error':'Erreur interne'})
-        await proposition.save()
+        //await proposition.save()
 
         if(RESPONSE == 'rejeter'){
             const prosdel = await Proposition.destroy({where : {id : IDPROPOSITION}})
@@ -216,44 +264,89 @@ const resToPropose = async(req,res,next) =>{
         }
 
         if(RESPONSE == 'accepter'){
-            const prosdel = await Proposition.destroy({where : {idAnnonce : proposition.idAnnonce}})
+            const prosdel = await Proposition.destroy({
+                where: {
+                    [Op.and]: [
+                      { idAnnonce : proposition.idAnnonce },
+                      { 
+                          id: {                         
+                            [Op.not]: user.id,   
+                        } 
+                      }
+                    ]
+                }
+            })
             if(!prosdel) return res.status(401).json({'error':'Erreur interne'})
 
-            return res.status(200).json({'message':'La proposition a été accepté veuillez continuer la procédure dans le menu contrat'})
+            const annonce = await Annonce.findOne({where: {
+                id : proposition.idAnnonce
+            }})            
+            if(annonce.type == 'EMPRUNT'){
+                
+                const saveProp = await Transaction.create({
+                    idContributeur : IDUSER,
+                    idEmprunteur : annonce.codeUser,
+                    idAnnonce : annonce.id,
+                    idContrat : proposition.idContrat,
+                    status : 'en attende de signature ...'
+                })
+                if(!saveProp) return res.status(401).json({'error':'Erreur interne'})
+
+                return res.status(200).json({'message':'Opération réussite, signer le contrat pour finaliser la transaction'})
+            }else{
+                const saveProp = await Transaction.create({
+                    idContributeur : annonce.codeUser,
+                    idEmprunteur : IDUSER,
+                    idAnnonce : annonce.id,
+                    status : 'en attende de signature ...'
+                })
+
+                return res.status(200).json({'message':'Opération réussite, signer le contrat pour finaliser la transaction'})
+            }
         }
 
-        return res.status(200).json({'message':'Opération réussite'})
     } catch (error) {
         return res.status(401).json({'error':'Erreur interne'})
     }
-}
-
-const genContrat = async(req,res,next) =>{
-    // VerifyToken(req,res,next)
-    // const user = req.user
-    // if(!user) return res.status(401).json({'error':'Erreur interne token invalide'})
-
-    const user = User.findOne({id:1})
-    const linktoken = jwt.sign({user},process.env.SECRET_TOKEN_CONTRAT,{expiresIn : '2m'})
-    req.link = linktoken
-    next()
 }
 
 const addSignature = async(req,res,next) =>{
     VerifyToken(req,res,next)
     const user = req.user
     const { signature } = req.body
+
     if(!user) return res.status(401).json({'error':'Erreur interne token invalide'})
 
-    const usr = await User.findOne({id: user.id})
-    usr.signature = signature
-    const sgn = await usr.save()
-    if(!sgn) return res.status(401).json({'error':'Erreur interne token invalide'})
+    try {
+        const usr = await User.findOne({id: user.id})
+        usr.signature = signature
+        const sgn = await usr.save()
+        if(!sgn) return res.status(401).json({'error':'Erreur interne token invalide'})
+    
+        return res.status(200).json({'message':'Votre signature a été enregsitré'})
+    } catch (error) {
+        return res.status(401).json({'error':'Erreur interne'})
+    }
 
-    return res.status(200).json({'message':'Votre signature a été enregsitré'})
 }
 
-const showContrat = async (req,res,next) =>{}
+const showContrat = async (req,res,next) =>{
+    const { IDCONTRAT } = req.body 
+    VerifyToken(req,res,next)
+
+    const user = req.user
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
+
+    try {
+        const contrat = await Contrat.findOne({where : {id:IDCONTRAT}})
+        if(!contrat) return res.status(401).json({'error':'Ce contrat est introuvable'})
+
+        req.document = contrat.document
+        next()
+    } catch (error) {
+        return res.status(401).json({'error':'Erreur interne'})
+    }
+}
 
 const debitUserAccount = async (req,res,next) =>{
     const { IDANNONCE } = req.body 
@@ -409,6 +502,4 @@ const debitUserAccount = async (req,res,next) =>{
     }
 }
 
-
-
-module.exports = { getUser , editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount, genContrat, addSignature, getSignature }
+module.exports = { getUser , editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount, addSignature, getSignature, showContrat, toPropose, deleteProposition, resToPropose }

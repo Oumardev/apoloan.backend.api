@@ -23,6 +23,9 @@ module.exports = {
       isBooster: {
         type: Sequelize.BOOLEAN
       },
+      modalitePaiement: {
+        type: Sequelize.STRING
+      },
       isVisible: {
         type: Sequelize.BOOLEAN
       },

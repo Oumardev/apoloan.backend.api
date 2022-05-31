@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       unique : true
     },
     photo:{
-      type : DataTypes.BLOB
+      type : DataTypes.TEXT
     },
     atnaissance: DataTypes.STRING,
     sexe: DataTypes.STRING,

@@ -15,12 +15,18 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE'
       })
 
+      Proposition.belongsTo(models.Contrat,{
+        foreignKey: 'idContrat',
+        onDelete: 'CASCADE'
+      })
+
     }
   }
   Proposition.init({
     idProposant: DataTypes.INTEGER,
     idAnnonce: DataTypes.INTEGER,
-    status : DataTypes.STRING
+    status : DataTypes.STRING,
+    idContrat: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Proposition',

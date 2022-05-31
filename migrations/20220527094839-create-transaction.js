@@ -32,6 +32,14 @@ module.exports = {
           as: 'idAnnonce'
         }
       },
+      idContrat: {
+        type: Sequelize.INTEGER,
+        references:{
+          model : 'Contrats',
+          key: 'id',
+          as: 'idContrat'
+        }
+      },
       status: {
         type: Sequelize.STRING
       },

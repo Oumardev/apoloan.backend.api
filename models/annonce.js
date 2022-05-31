@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     type: DataTypes.STRING,
     duree: DataTypes.STRING,
     pourcentage: DataTypes.FLOAT,
+    modalitePaiement: DataTypes.STRING,
     montant: DataTypes.FLOAT,
     isBooster: DataTypes.BOOLEAN,
     isVisible: DataTypes.BOOLEAN,
