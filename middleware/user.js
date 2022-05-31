@@ -332,17 +332,17 @@ const addSignature = async(req,res,next) =>{
 
 const showContrat = async (req,res,next) =>{
     const { IDCONTRAT } = req.body 
-    VerifyToken(req,res,next)
 
+    if(!IDCONTRAT) return res.status(401).json({'error':'Erreur interne'})
+    VerifyToken(req,res,next)
     const user = req.user
     if(!user) return res.status(401).json({'error':'Erreur interne'})
 
     try {
         const contrat = await Contrat.findOne({where : {id:IDCONTRAT}})
-        if(!contrat) return res.status(401).json({'error':'Ce contrat est introuvable'})
+        if(!contrat) res.status(401).json({'error':'Ce contrat est introuvable'})    
 
-        req.document = contrat.document
-        next()
+        res.redirect(contrat.document);
     } catch (error) {
         return res.status(401).json({'error':'Erreur interne'})
     }

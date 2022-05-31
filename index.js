@@ -126,16 +126,14 @@ app.use('/cosntr',checkconttat,(req,res)=>{
     res.render('pages/contrat/index');
 });
 
-app.get('/contrat',showContrat, (req,res) =>{
-    return res.redirect(req.document);
-})
+app.get('/contrat',showContrat,(req,res)=>{})
 
 app.use('/signature',(req,res)=>{
     res.render('pages/signature/index');
 });
-app.post('/addsignature', addSignature);
+app.post('/addsignature', addSignature,(req,res)=>{});
 
-app.get('/apoloanapi/getsignature',getSignature)
+app.get('/apoloanapi/getsignature',getSignature,(req,res)=>{})
 
 app.post("/upload_files", upload.single("file") , function (req, res) {});
 
@@ -171,12 +169,12 @@ app.post("/upload_files", upload.single("file") , function (req, res) {});
  *              isLogin:
  *                type: boolean
  */
-app.post('/apoloanapi/login',login)
-app.post('/apoloanapi/fetchtoecobank',fetchtoecobank)
+app.post('/apoloanapi/login',login,(req,res)=>{})
+app.post('/apoloanapi/fetchtoecobank',fetchtoecobank,(req,res)=>{})
 
-app.post('/apoloanapi/topropose',toPropose)
-app.delete('/apoloanapi/deleteproposition',deleteProposition)
-app.post('/apoloanapi/restopropose',resToPropose)
+app.post('/apoloanapi/topropose',toPropose,(req,res)=>{})
+app.delete('/apoloanapi/deleteproposition',deleteProposition,(req,res)=>{})
+app.post('/apoloanapi/restopropose',resToPropose,(req,res)=>{})
 
 /**
  * @swagger
@@ -208,7 +206,7 @@ app.post('/apoloanapi/restopropose',resToPropose)
  *       201:
  *         description: L'annonce a été créé
  */
-app.post('/apoloanapi/annonce/create',createAnnonce)
+app.post('/apoloanapi/annonce/create',createAnnonce,(req,res)=>{})
 
 /**
  * @swagger
@@ -235,7 +233,7 @@ app.post('/apoloanapi/annonce/create',createAnnonce)
  *       201:
  *         description: Rechargement effectué
  */
-app.post('/apoloanapi/useraccount/refil',refilUserAccount)
+app.post('/apoloanapi/useraccount/refil',refilUserAccount,(req,res)=>{})
 
 /**
  * @swagger
@@ -261,7 +259,7 @@ app.post('/apoloanapi/useraccount/refil',refilUserAccount)
  *       201:
  *         description: La transaction s'est bien passé
  */
-app.post('/apoloanapi/useraccount/debit',debitUserAccount)
+app.post('/apoloanapi/useraccount/debit',debitUserAccount,(req,res)=>{})
 
 /**
  * @swagger
@@ -287,7 +285,7 @@ app.post('/apoloanapi/useraccount/debit',debitUserAccount)
  *       201:
  *         description: Rembourssement effectué
  */
-app.post('/apoloanapi/useraccount/refound',refundUserAccount)
+app.post('/apoloanapi/useraccount/refound',refundUserAccount,(req,res)=>{})
 
 /**
  * @swagger
@@ -345,7 +343,7 @@ app.post('/apoloanapi/useraccount/refound',refundUserAccount)
  *                   numeroCNI:
  *                     type: integer
  */
-app.get('/apoloanapi/annonce/list',listAnnonce)
+app.get('/apoloanapi/annonce/list',listAnnonce,(req,res)=>{})
 
 /**
  * @swagger
@@ -382,7 +380,7 @@ app.get('/apoloanapi/annonce/list',listAnnonce)
  *                  createdAt:
  *                    type: string      
  */
-app.get('/apoloanapi/pret/list',listPret)
+app.get('/apoloanapi/pret/list',listPret,(req,res)=>{})
 
 /**
  * @swagger
@@ -419,7 +417,7 @@ app.get('/apoloanapi/pret/list',listPret)
  *                  createdAt:
  *                    type: string      
  */
-app.get('/apoloanapi/emprunt/list',listEmprunt)
+app.get('/apoloanapi/emprunt/list',listEmprunt,(req,res)=>{})
 
 /**
  * @swagger
@@ -465,7 +463,7 @@ app.get('/apoloanapi/emprunt/list',listEmprunt)
  *                   solde:
  *                      type: integer
  */
-app.get('/apoloanapi/user',getUser)
+app.get('/apoloanapi/user',getUser,(req,res)=>{})
 
 /**
  * @swagger
@@ -497,7 +495,7 @@ app.get('/apoloanapi/user',getUser)
  *       201:
  *         description: Annonce modifié
  */
-app.patch('/apoloanapi/annonce',patchAnnonce)
+app.patch('/apoloanapi/annonce',patchAnnonce,(req,res)=>{})
 
 /**
  * @swagger
@@ -531,7 +529,7 @@ app.patch('/apoloanapi/annonce',patchAnnonce)
  *       200:
  *         description: Utilisateur modifié
  */
-app.patch('/apoloanapi/user',editUser)
+app.patch('/apoloanapi/user',editUser,(req,res)=>{})
 
 /**
  * @swagger
@@ -559,7 +557,7 @@ app.patch('/apoloanapi/user',editUser)
  *       201:
  *         description: Mot de passe modifié
  */
-app.patch('/apoloanapi/password',editPassword)
+app.patch('/apoloanapi/password',editPassword,(req,res)=>{})
 
 /**
  * @swagger
@@ -585,7 +583,7 @@ app.patch('/apoloanapi/password',editPassword)
  *       201:
  *         description: Annonce supprimé
  */
-app.delete('/apoloanapi/annonce',deleteAnnonce)
+app.delete('/apoloanapi/annonce',deleteAnnonce,(req,res)=>{})
     const server = app.listen(process.env.PORT, process.env.ADDRESS,async()=>{
     try {
         await sequelize.authenticate()

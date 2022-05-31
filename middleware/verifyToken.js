@@ -6,7 +6,6 @@ const VerifyToken = (req,res,next) =>{
 
     jwt.verify(token, process.env.SECRET_TOKEN, (err, user)=>{
         if(user){
-            console.log('user ', user)
             req.user = user
             next()
         }
