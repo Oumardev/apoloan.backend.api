@@ -5,6 +5,7 @@ const app = express()
 require('dotenv').config()
 const { register, login } = require('./middleware/auth')
 const { createAnnonce, listAnnonce, patchAnnonce, deleteAnnonce } = require('./middleware/annonce')
+const { listProposition } = require('./middleware/proposition')
 const { listPret } = require('./middleware/pret')
 const { listEmprunt } = require('./middleware/emprunt')
 const { fetchtoecobank } = require('./middleware/ecobank')
@@ -113,30 +114,6 @@ app.post('/apoloanapi/register',register,(req,res)=>{
     return res.status(200).json({'success':'Utilisateur crée veuillez vous authentifier'})
 })
 
-const checkconttat = (req,res,next) =>{
-    const URL = req.query.urltemp
-    jwt.verify(URL, process.env.SECRET_TOKEN_CONTRAT, (err, bool)=>{
-        if(err) return res.send('error')
-        if(bool) next()
-        else return res.send('Access denied')
-    })
-}
-
-app.use('/cosntr',checkconttat,(req,res)=>{
-    res.render('pages/contrat/index');
-});
-
-app.get('/contrat',showContrat,(req,res)=>{})
-
-app.use('/signature',(req,res)=>{
-    res.render('pages/signature/index');
-});
-app.post('/addsignature', addSignature,(req,res)=>{});
-
-app.get('/apoloanapi/getsignature',getSignature,(req,res)=>{})
-
-app.post("/upload_files", upload.single("file") , function (req, res) {});
-
 /**
  * @swagger
  * /apoloanapi/login:
@@ -170,10 +147,224 @@ app.post("/upload_files", upload.single("file") , function (req, res) {});
  *                type: boolean
  */
 app.post('/apoloanapi/login',login,(req,res)=>{})
+
+const checkconttat = (req,res,next) =>{
+    const URL = req.query.urltemp
+    jwt.verify(URL, process.env.SECRET_TOKEN_CONTRAT, (err, bool)=>{
+        if(err) return res.send('error')
+        req.user = bool
+        if(bool) next()
+        else return res.send('Access denied')
+    })
+}
+app.use('/cosntr',checkconttat,(req,res)=>{
+
+    console.log('resj ',req.user)
+    res.render('pages/contrat/index',{
+        mascots: 'mascots',
+        tagline: 'Wesh la variable'
+    });
+});
+
+/**
+ * @swagger
+ * /apoloanapi/contrat:
+ *   get:
+ *     tags:
+ *     - "Contrat"
+ *     summary: Affiche le contrat 
+ *     description: Ce lien est utilisé pour afficher le contrat
+ *     security:
+ *      - bearerAuth: [] 
+ *     parameters:
+ *      - in: body
+ *        name: body
+ *        description: Paramètre d'affichage
+ *        schema:
+ *         type: object
+ *         properties:
+ *           IDCONTRAT:
+ *              type: integer 
+ *        required: true
+ *     responses:
+ *       201:
+ *         description: Affichage du contrat
+ */
+app.get('/apoloanapi/contrat',showContrat,(req,res)=>{})
+
+/**
+ * @swagger
+ * /apoloanapi/signature:
+ *   get:
+ *     tags:
+ *     - "User"
+ *     summary: Ajouter une signature
+ *     description: Ce lien est utilisé pour ajouter une signature a un utilisateur
+ *     security:
+ *      - bearerAuth: [] 
+ *     responses:
+ *       200:
+ *         description: La signature a été ajouté avec succès
+ */
+app.use('/apoloanapi/signature',(req,res)=>{
+    res.render('pages/signature/index');
+});
+app.post('/apoloanapi/addsignature', addSignature,(req,res)=>{});
+
+/**
+ * @swagger
+ * /apoloanapi/signature:
+ *   get:
+ *     tags:
+ *     - "User"
+ *     summary: Réccupere une signature 
+ *     description: Ce lien est utilisé pour récupérer l'image de la signature d'un utilisateur
+ *     security:
+ *      - bearerAuth: [] 
+ *     responses:
+ *       200:
+ *         description: Affichage de la signature de l'utilisateur
+ */
+app.get('/apoloanapi/getsignature',getSignature,(req,res)=>{})
+
+app.post("/upload_files", upload.single("file") , function (req, res) {});
+
+/**
+ * @swagger
+ * /apoloanapi/fetchtoecobank:
+ *   post:
+ *     tags:
+ *     - "Bank"
+ *     summary: Activer un compte apoloan 
+ *     description: Ce lien est utilisé pour vérifier et activer le compte de l'utilisateur l'orsque'il rentre ses informations bancaire
+ *     security:
+ *      - bearerAuth: [] 
+ *     parameters:
+ *      - in: body
+ *        name: body
+ *        description: Paramètre d'activation de compte Apoloan
+ *        schema:
+ *         type: object
+ *         properties:
+ *           CardNumber:
+ *              type: string
+ *           Name:
+ *              type: string
+ *           Expiry:
+ *              type: string
+ *           CVV:
+ *              type: string 
+ *        required: true
+ *     responses:
+ *       200:
+ *         description: Votre compte apoloan a été activé
+ */
 app.post('/apoloanapi/fetchtoecobank',fetchtoecobank,(req,res)=>{})
 
+/**
+ * @swagger
+ * /apoloanapi/listproposition:
+ *   post:
+ *     tags:
+ *     - "Proposition"
+ *     summary: Lister les propositions d'une annonce
+ *     description: Ce lien est utilisé pour afficher la liste des propositions sur une annonce
+ *     security:
+ *      - bearerAuth: [] 
+ *     parameters:
+ *      - in: body
+ *        name: body
+ *        description: Paramètre d'affichage de proposition
+ *        schema:
+ *         type: object
+ *         properties:
+ *           IDANNONCE:
+ *              type: integer
+ *        required: true
+ *     responses:
+ *       200:
+ *         description: Affichage de la liste des proposition
+ */
+app.post('/apoloanapi/listproposition',listProposition,(req,res)=>{})
+
+/**
+ * @swagger
+ * /apoloanapi/topropose:
+ *   post:
+ *     tags:
+ *     - "Proposition"
+ *     summary: Faire une proposition 
+ *     description: Ce lien est utilisé par un utilisateur pour effectuer une proposition sur une annonce qu'il a vue
+ *     security:
+ *      - bearerAuth: [] 
+ *     parameters:
+ *      - in: body
+ *        name: body
+ *        description: Paramètre de proposition
+ *        schema:
+ *         type: object
+ *         properties:
+ *           IDANNONCE:
+ *              type: integer
+ *        required: true
+ *     responses:
+ *       200:
+ *         description: Votre proposition a été envoyé elle sera supprimé automatiquement si l'utilisateur la rejette
+ */
 app.post('/apoloanapi/topropose',toPropose,(req,res)=>{})
+
+/**
+ * @swagger
+ * /apoloanapi/deleteproposition:
+ *   delete:
+ *     tags:
+ *     - "Proposition"
+ *     summary: Supprimer une proposition 
+ *     description: Ce lien est utilisé par un utilisateur pour supprimer une proposition
+ *     security:
+ *      - bearerAuth: [] 
+ *     parameters:
+ *      - in: body
+ *        name: body
+ *        description: Paramètre de suppression de proposition
+ *        schema:
+ *         type: object
+ *         properties:
+ *           IDANNONCE:
+ *              type: integer
+ *        required: true
+ *     responses:
+ *       200:
+ *         description: La proposition a été supprimé
+ */
 app.delete('/apoloanapi/deleteproposition',deleteProposition,(req,res)=>{})
+
+/**
+ * @swagger
+ * /apoloanapi/restopropose:
+ *   post:
+ *     tags:
+ *     - "Proposition"
+ *     summary: Répondre a une proposition 
+ *     description: Ce lien est utilisé par un utilisateur pour répondre a une proposition
+ *     security:
+ *      - bearerAuth: [] 
+ *     parameters:
+ *      - in: body
+ *        name: body
+ *        description: Paramètre de réponse de proposition
+ *        schema:
+ *         type: object
+ *         properties:
+ *           IDPROPOSITION:
+ *              type: integer
+ *           RESPONSE:
+ *              type: string
+ *        required: true
+ *     responses:
+ *       200:
+ *         description: Opération réussite, signer le contrat pour finaliser la transaction
+ */
 app.post('/apoloanapi/restopropose',resToPropose,(req,res)=>{})
 
 /**
@@ -201,6 +392,8 @@ app.post('/apoloanapi/restopropose',resToPropose,(req,res)=>{})
  *              type: integer
  *           montant:
  *              type: integer
+ *           modalitePaiement:
+ *              type: string
  *        required: true
  *     responses:
  *       201:

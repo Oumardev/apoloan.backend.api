@@ -9,7 +9,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       document: {
-        type: Sequelize.BLOB
+        type: Sequelize.TEXT
       },
       signatureCreantier: {
         type: Sequelize.TEXT

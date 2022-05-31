@@ -170,9 +170,9 @@ const toPropose = async (req,res,next) =>{
 
     try {
         // on recherche pour voir si l'uilisateur a enregistré une signature dans sa table
-        const usr = await User.findOne({ id : IDUSER })
+        const usr = await User.findOne({ where : { id : IDUSER } })
         let contrat = null
-        if(!user.signature) return res.status(401).json({'error':'Vous devez enregistrer une signature avant de commencer la suite de l\'opération'})
+        if(!usr.signature) return res.status(401).json({'error':'Vous devez enregistrer une signature avant de commencer la suite de l\'opération'})
         
         // on recherche si user a déja proposé a cette annonce
         const propst = await Proposition.findOne({
@@ -188,15 +188,16 @@ const toPropose = async (req,res,next) =>{
         }})            
         if(annonce.type == 'EMPRUNT'){
             // on génère le contrat 
+            const docs = await genContrat(req,res);
             contrat = await Contrat.create({
-                document : genContrat(req,res),
+                document : docs,
                 signatureCreantier : user.signature,
                 signatureDebiteur : null
             })
         }else{
             // on génère le contrat 
             contrat = await Contrat.create({
-                document : genContrat(req,res),
+                document : docs,
                 signatureCreantier : null,
                 signatureDebiteur : user.signature
             })
@@ -315,12 +316,14 @@ const addSignature = async(req,res,next) =>{
     const user = req.user
     const { signature } = req.body
 
+    console.log(user)
     if(!user) return res.status(401).json({'error':'Erreur interne token invalide'})
 
     try {
-        const usr = await User.findOne({id: user.id})
+        const usr = await User.findOne({where : {id: user.id}})
         usr.signature = signature
         const sgn = await usr.save()
+
         if(!sgn) return res.status(401).json({'error':'Erreur interne token invalide'})
     
         return res.status(200).json({'message':'Votre signature a été enregsitré'})
@@ -342,6 +345,7 @@ const showContrat = async (req,res,next) =>{
         const contrat = await Contrat.findOne({where : {id:IDCONTRAT}})
         if(!contrat) res.status(401).json({'error':'Ce contrat est introuvable'})    
 
+        
         res.redirect(contrat.document);
     } catch (error) {
         return res.status(401).json({'error':'Erreur interne'})
