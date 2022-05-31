@@ -9,10 +9,13 @@ const { listPret } = require('./middleware/pret')
 const { listEmprunt } = require('./middleware/emprunt')
 const { fetchtoecobank } = require('./middleware/ecobank')
 const { getUser, editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount, addSignature, getSignature, showContrat, toPropose, deleteProposition, resToPropose } = require('./middleware/user')
-app.use(bodyParser.urlencoded({extended: true}))
 const jwt = require('jsonwebtoken')
+
+app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
 app.use(express.static('public'));
+
+app.set('view engine', 'ejs');
 
 const multer = require('multer')
 const uidcontratname = () =>{
@@ -28,7 +31,7 @@ var storage = multer.diskStorage({
     filename: function (req, file, cb) { 
        cb(null , uidcontratname());   
     }
- });
+});
 
 const upload = multer({ storage: storage})
 
@@ -119,12 +122,17 @@ const checkconttat = (req,res,next) =>{
     })
 }
 
-app.use('/cosntr',checkconttat,express.static(__dirname + '/contratpage'));
+app.use('/cosntr',checkconttat,(req,res)=>{
+    res.render('pages/contrat/index');
+});
+
 app.get('/contrat',showContrat, (req,res) =>{
     return res.redirect(req.document);
 })
 
-app.use('/signature',express.static(__dirname + '/signaturepage'));
+app.use('/signature',(req,res)=>{
+    res.render('pages/signature/index');
+});
 app.post('/addsignature', addSignature);
 
 app.get('/apoloanapi/getsignature',getSignature)
