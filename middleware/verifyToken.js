@@ -8,6 +8,8 @@ const VerifyToken = (req,res,next) =>{
         if(user){
             req.user = user
             next()
+        }else{
+            res.send('Access denied').end()
         }
     })
 }

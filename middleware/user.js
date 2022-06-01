@@ -148,11 +148,13 @@ const refilUserAccount = async (req,res,next) =>{
     }
 }
 
-const genContrat = async(req,res) =>{
-
+const genContrat = async(req,res,usr,annonce) =>{
+    
     const user = req.user
+    const data = { 'proposant':usr.dataValues, 'annonce': annonce }
+
     if(!user) return res.status(401).json({'error':'Erreur interne token invalide'})
-    const linktoken = jwt.sign({user},process.env.SECRET_TOKEN_CONTRAT,{expiresIn : '2d'})
+    const linktoken = jwt.sign({data},process.env.SECRET_TOKEN_CONTRAT,{expiresIn : '2d'})
 
     return `/cosntr?urltemp=${linktoken}`
 }
@@ -178,20 +180,21 @@ const toPropose = async (req,res,next) =>{
         const propst = await Proposition.findOne({
             where: {
                 [Op.and]: [{ idProposant: IDUSER }, { idAnnonce: IDANNONCE }]
-            }
+            },
+            include : [User, Contrat, Annonce]
         })
         if(propst) return res.status(401).json({'error':'Vous ne pouvez pas proposer sur cette annonce'})
-        
         // on recherche le type de l'annonce 
         const annonce = await Annonce.findOne({where: {
             id : IDANNONCE
         }})            
         if(annonce.type == 'EMPRUNT'){
             // on génère le contrat 
-            const docs = await genContrat(req,res);
+            const docs = await genContrat(req,res,usr,annonce);
+
             contrat = await Contrat.create({
                 document : docs,
-                signatureCreantier : user.signature,
+                signatureCreantier : usr.signature,
                 signatureDebiteur : null
             })
         }else{
@@ -199,7 +202,7 @@ const toPropose = async (req,res,next) =>{
             contrat = await Contrat.create({
                 document : docs,
                 signatureCreantier : null,
-                signatureDebiteur : user.signature
+                signatureDebiteur : usr.signature
             })
         }
 
@@ -345,7 +348,7 @@ const showContrat = async (req,res,next) =>{
         const contrat = await Contrat.findOne({where : {id:IDCONTRAT}})
         if(!contrat) res.status(401).json({'error':'Ce contrat est introuvable'})    
 
-        
+
         res.redirect(contrat.document);
     } catch (error) {
         return res.status(401).json({'error':'Erreur interne'})

@@ -1,5 +1,5 @@
 const express = require('express')
-const { sequelize } = require('./models')
+const { sequelize, User } = require('./models')
 const bodyParser = require('body-parser')
 const app = express()
 require('dotenv').config()
@@ -10,6 +10,7 @@ const { listPret } = require('./middleware/pret')
 const { listEmprunt } = require('./middleware/emprunt')
 const { fetchtoecobank } = require('./middleware/ecobank')
 const { getUser, editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount, addSignature, getSignature, showContrat, toPropose, deleteProposition, resToPropose } = require('./middleware/user')
+const { VerifyToken } = require('./middleware/verifyToken')
 const jwt = require('jsonwebtoken')
 
 app.use(bodyParser.urlencoded({extended: true}))
@@ -150,19 +151,27 @@ app.post('/apoloanapi/login',login,(req,res)=>{})
 
 const checkconttat = (req,res,next) =>{
     const URL = req.query.urltemp
-    jwt.verify(URL, process.env.SECRET_TOKEN_CONTRAT, (err, bool)=>{
+    jwt.verify(URL, process.env.SECRET_TOKEN_CONTRAT, (err, data)=>{
         if(err) return res.send('error')
-        req.user = bool
-        if(bool) next()
+        req.var = data
+        if(data) next()
         else return res.send('Access denied')
     })
 }
-app.use('/cosntr',checkconttat,(req,res)=>{
+app.use('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
+    const data = req.var
+    const signUser = await User.findOne({
+        where: {id: req.user.id}, 
+        attributes: ['id','signature'],
+    })
 
-    console.log('resj ',req.user)
+    if(!signUser.dataValues.signature) return res.send('Vous devez enregistrer une signature avant de commencer la suite de l\'opération')
+
     res.render('pages/contrat/index',{
-        mascots: 'mascots',
-        tagline: 'Wesh la variable'
+        'user': req.user,
+        'proposant': data.data.proposant,
+        'annonce' : data.data.annonce,
+        'sign' : signUser.dataValues.signature
     });
 });
 
