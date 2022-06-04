@@ -9,10 +9,12 @@ const { listProposition } = require('./middleware/proposition')
 const { listPret } = require('./middleware/pret')
 const { listEmprunt } = require('./middleware/emprunt')
 const { fetchtoecobank } = require('./middleware/ecobank')
-const { getUser, editUser, editPassword, refilUserAccount, debitUserAccount, refundUserAccount, addSignature, getSignature, showContrat, toPropose, deleteProposition, resToPropose } = require('./middleware/user')
+const { getUser, editUser, editPassword, refilUserAccount, addSignature, getSignature, showContrat, toPropose, deleteProposition, resToPropose } = require('./middleware/user')
 const { VerifyToken } = require('./middleware/verifyToken')
 const jwt = require('jsonwebtoken')
+const cors = require('cors');
 
+app.use(cors())
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
 app.use(express.static('public'));
@@ -158,6 +160,7 @@ const checkconttat = (req,res,next) =>{
         else return res.send('Access denied')
     })
 }
+
 app.use('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
     const data = req.var
     const signUser = await User.findOne({
@@ -166,12 +169,13 @@ app.use('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
     })
 
     if(!signUser.dataValues.signature) return res.send('Vous devez enregistrer une signature avant de commencer la suite de l\'opération')
-
+    console.log('data: ',data)
     res.render('pages/contrat/index',{
         'user': req.user,
         'proposant': data.data.proposant,
         'annonce' : data.data.annonce,
-        'sign' : signUser.dataValues.signature
+        'sign' : signUser.dataValues.signature,
+        'token' : req.token
     });
 });
 
@@ -201,39 +205,15 @@ app.use('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
  */
 app.get('/apoloanapi/contrat',showContrat,(req,res)=>{})
 
-/**
- * @swagger
- * /apoloanapi/signature:
- *   get:
- *     tags:
- *     - "User"
- *     summary: Ajouter une signature
- *     description: Ce lien est utilisé pour ajouter une signature a un utilisateur
- *     security:
- *      - bearerAuth: [] 
- *     responses:
- *       200:
- *         description: La signature a été ajouté avec succès
- */
-app.use('/apoloanapi/signature',(req,res)=>{
-    res.render('pages/signature/index');
-});
-app.post('/apoloanapi/addsignature', addSignature,(req,res)=>{});
 
-/**
- * @swagger
- * /apoloanapi/signature:
- *   get:
- *     tags:
- *     - "User"
- *     summary: Réccupere une signature 
- *     description: Ce lien est utilisé pour récupérer l'image de la signature d'un utilisateur
- *     security:
- *      - bearerAuth: [] 
- *     responses:
- *       200:
- *         description: Affichage de la signature de l'utilisateur
- */
+app.get('/apoloanapi/signature',VerifyToken,(req,res)=>{
+    res.render('pages/signature/index',{
+        'token' : req.token
+    });
+});
+
+app.post('/apoloanapi/addsignature',VerifyToken,addSignature,(req,res)=>{});
+
 app.get('/apoloanapi/getsignature',getSignature,(req,res)=>{})
 
 app.post("/upload_files", upload.single("file") , function (req, res) {});
@@ -348,33 +328,7 @@ app.post('/apoloanapi/topropose',toPropose,(req,res)=>{})
  */
 app.delete('/apoloanapi/deleteproposition',deleteProposition,(req,res)=>{})
 
-/**
- * @swagger
- * /apoloanapi/restopropose:
- *   post:
- *     tags:
- *     - "Proposition"
- *     summary: Répondre a une proposition 
- *     description: Ce lien est utilisé par un utilisateur pour répondre a une proposition
- *     security:
- *      - bearerAuth: [] 
- *     parameters:
- *      - in: body
- *        name: body
- *        description: Paramètre de réponse de proposition
- *        schema:
- *         type: object
- *         properties:
- *           IDPROPOSITION:
- *              type: integer
- *           RESPONSE:
- *              type: string
- *        required: true
- *     responses:
- *       200:
- *         description: Opération réussite, signer le contrat pour finaliser la transaction
- */
-app.post('/apoloanapi/restopropose',resToPropose,(req,res)=>{})
+app.post('/apoloanapi/restopropose',VerifyToken,resToPropose,(req,res)=>{})
 
 /**
  * @swagger
@@ -436,58 +390,6 @@ app.post('/apoloanapi/annonce/create',createAnnonce,(req,res)=>{})
  *         description: Rechargement effectué
  */
 app.post('/apoloanapi/useraccount/refil',refilUserAccount,(req,res)=>{})
-
-/**
- * @swagger
- * /apoloanapi/useraccount/debit:
- *   post:
- *     tags:
- *     - "Annonce"
- *     summary: Débiter / Créditer (Selon type Annonce)
- *     description: Ce lien sera utilisé pour débiter le compte de l'utilisateur quand il voudra contribuer a une annonce d'emprunt ou quand un emprunteur sera intéressé par une annonce de pret
- *     security:
- *      - bearerAuth: [] 
- *     parameters:
- *      - in: body
- *        name: body
- *        description: object
- *        schema:
- *         type: object
- *         properties:
- *           IDANNONCE:
- *              type: integer
- *        required: true
- *     responses:
- *       201:
- *         description: La transaction s'est bien passé
- */
-app.post('/apoloanapi/useraccount/debit',debitUserAccount,(req,res)=>{})
-
-/**
- * @swagger
- * /apoloanapi/useraccount/refound:
- *   post:
- *     tags:
- *     - "Annonce"
- *     summary: Remboursser un pret
- *     description: Ce lien sera utilisé pour le rembourssement d'un pret 
- *     security:
- *      - bearerAuth: [] 
- *     parameters:
- *      - in: body
- *        name: body
- *        description: object
- *        schema:
- *         type: object
- *         properties:
- *           IDPRET:
- *              type: integer
- *        required: true
- *     responses:
- *       201:
- *         description: Rembourssement effectué
- */
-app.post('/apoloanapi/useraccount/refound',refundUserAccount,(req,res)=>{})
 
 /**
  * @swagger

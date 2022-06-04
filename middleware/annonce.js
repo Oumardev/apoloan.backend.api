@@ -2,24 +2,41 @@ const { Annonce, User } = require('../models')
 const { VerifyToken } = require('./verifyToken')
 const { Op } = require("sequelize");
 
+const generatePercent = (duree,payment,montant)=>{
+    var PERCENT = 0
+    
+    if(montant <= 100000) PERCENT = 1.5
+    if(montant>=100000 && montant <= 250000) PERCENT = 1.9
+    if(montant>=250000 && montant <= 500000) PERCENT = 2.4
+    if(montant>=500000 && montant <= 1000000) PERCENT = 3
+    
+    var perc_duree = (duree/12)
+    var perc_payment = (payment/4)
+    
+    var calc = (perc_duree*perc_payment) + PERCENT
+    
+    return calc
+}
+
 const createAnnonce = async (req,res,next) =>{
     VerifyToken(req,res,next)
     const user = req.user
     if(!user) return res.status(401).json({'error':'Erreur interne'})
 
-    console.log('body req',req.body)
-    const { type, duree, pourcentage, modalitePaiement, montant } = req.body  //  type:['EMPRUNT','PRET'] 
+    const { type, duree, modalitePaiement, montant } = req.body  //  type:['EMPRUNT','PRET'] 
 
-    if( !type || !duree || !pourcentage || !modalitePaiement || !montant ) return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
+    if( !type || !duree || !modalitePaiement || !montant ) return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
 
     if( type.replace(/\s/g, '')=='') return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
      
     // vérifie si numéro contient des letttres
     if (!Number.isInteger(montant)) return res.status(401).json({'error' : 'Certaines informations ne doivent pas contenir des lettres'})
     
-   // insertion de l'annonce
+    // on génère le pourcentage 
+    var pourcentage = generatePercent(duree,modalitePaiement,montant)
 
-   try {
+    // insertion de l'annonce
+    try {
        const annonce = await Annonce.create({
             'type': type, 
             'duree': duree, 
@@ -30,8 +47,8 @@ const createAnnonce = async (req,res,next) =>{
             'isVisible': true, 
             'codeUser': user.id
         })
-
         if(!annonce) return res.status(401).json({'error':'Erreur interne',error})
+
         
        return res.status(200).json({'success':'Annonce crée'})
     } catch (error) {

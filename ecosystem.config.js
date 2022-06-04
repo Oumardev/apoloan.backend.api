@@ -8,7 +8,7 @@ module.exports = {
         "PORT": 1000,
         "NODE_ENV": "development",
         "SECRET_TOKEN" : "7LJ3H4@3NBVVEYHDBDGG63JHDU3]J76CVUHDJ3@@@#293@3DHHDHHDDD",
-        "ADDRESS" : "192.168.1.5",
+        "ADDRESS" : "192.168.1.6",
         "USERNAME_DB" : "apoloandba",
         "PASSWD_DB" : "apoloan_283@2000",
         "DB_NAME" : "apoloandb",

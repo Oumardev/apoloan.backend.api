@@ -15,9 +15,9 @@ module.exports = (sequelize, DataTypes) => {
   }
   Annonce.init({
     type: DataTypes.STRING,
-    duree: DataTypes.STRING,
+    duree: DataTypes.INTEGER,
     pourcentage: DataTypes.FLOAT,
-    modalitePaiement: DataTypes.STRING,
+    modalitePaiement: DataTypes.INTEGER,
     montant: DataTypes.FLOAT,
     isBooster: DataTypes.BOOLEAN,
     isVisible: DataTypes.BOOLEAN,

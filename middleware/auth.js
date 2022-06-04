@@ -49,7 +49,6 @@ const register = (req,res,next) =>{
 
 const login = async (req,res,next) =>{
     const { numero, password } = req.body
-
     if( !numero || !password  ) return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
 
     // vérifie si numéro contient des letttres

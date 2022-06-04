@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     document: DataTypes.TEXT,
     signatureCreantier: DataTypes.TEXT,
     signatureDebiteur: DataTypes.TEXT,
+    dateEcheance : DataTypes.DATE
   }, {
     sequelize,
     modelName: 'Contrat',

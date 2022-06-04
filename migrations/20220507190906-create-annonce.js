@@ -12,7 +12,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       duree: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       pourcentage: {
         type: Sequelize.FLOAT
@@ -24,7 +24,7 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       modalitePaiement: {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       isVisible: {
         type: Sequelize.BOOLEAN

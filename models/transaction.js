@@ -25,6 +25,11 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE'
       })
 
+      Transaction.hasMany(models.Versement,{
+        foreignKey: 'idTransaction',
+        onDelete: 'CASCADE'
+      })
+
     }
   }
   Transaction.init({

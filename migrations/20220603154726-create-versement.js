@@ -1,24 +1,34 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Contrats', {
+    await queryInterface.createTable('Versements', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      document: {
-        type: Sequelize.TEXT
+      idTransaction: {
+        type: Sequelize.INTEGER,
+        references:{
+          model : 'Transactions',
+          key: 'id',
+          as: 'idTransaction'
+        }
       },
-      signatureCreantier: {
-        type: Sequelize.TEXT
+      vieme: {
+        type: Sequelize.INTEGER
       },
-      signatureDebiteur: {
-        type: Sequelize.TEXT
+      vntotal: {
+        type: Sequelize.INTEGER
+      },
+      montantVerser: {
+        type: Sequelize.FLOAT
+      },
+      montantAVerser: {
+        type: Sequelize.FLOAT
       },
       dateEcheance: {
-        allowNull: false,
         type: Sequelize.DATE
       },
       createdAt: {
@@ -32,6 +42,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Contrats');
+    await queryInterface.dropTable('Versements');
   }
 };

@@ -7,8 +7,10 @@ const VerifyToken = (req,res,next) =>{
     jwt.verify(token, process.env.SECRET_TOKEN, (err, user)=>{
         if(user){
             req.user = user
+            req.token = token
             next()
         }else{
+            console.log("deny")
             res.send('Access denied').end()
         }
     })

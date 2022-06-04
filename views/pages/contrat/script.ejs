@@ -1,0 +1,62 @@
+<script>
+    $(document).ready(function () {  
+        var form = $('.c12'),  
+        cache_width = form.width(),  
+        a4 = [595.28, 841.89];
+        var error = document.getElementById('error')
+
+        $('#create_pdf').on('click', function () {  
+           // $('body').scrollTop(0);  
+            createPDF();  
+        });  
+        
+        function createPDF() {  
+            var IDPROPOSANT = `<%= proposant.id %>`
+            var IDANNONCE = `<%= annonce.id %>`
+            var RESPONSE = 'accepter'
+            var token = `<%= token %>`
+
+            IDPROPOSANT = parseInt(IDPROPOSANT)
+            IDANNONCE = parseInt(IDANNONCE)
+            
+            const send = { IDPROPOSANT, IDANNONCE, RESPONSE }
+            getCanvas().then(async function(canvas) {  
+                var img = canvas.toDataURL("image/png"),  
+                doc = new jsPDF({  
+                    unit: 'px',  
+                    format: 'a3'  
+                });
+                doc.addImage(img, 'JPEG', 20, 20);  
+                //doc.save('Contrat.pdf');  
+
+                const pdf = new File([doc.output("blob")], "filename.pdf", {  type: "pdf" }),
+                data = new FormData();
+                
+                axios.post('http://192.168.1.6:1000/apoloanapi/restopropose',send,{
+                    headers: { Authorization: `Bear ${token}` }
+                })
+                .then(response => {
+                    if(response.data.error) error.innerText = response.data.error
+                    else {
+                        data.append("file", pdf);
+                        axios.post('http://192.168.1.6:1000/upload_files',data)
+                    }
+                })
+
+                //window.location.replace("/");
+
+                
+                form.width(cache_width);  
+            });  
+        }  
+          
+        function getCanvas() {  
+            form.width((a4[1] * 1.33333) - 100).css('max-width', 'none');  
+            return html2canvas(form, {  
+                imageTimeout: 2000,  
+                removeContainer: true  
+            });  
+        }
+
+    });
+</script>
