@@ -8,8 +8,8 @@ const { createAnnonce, listAnnonce, patchAnnonce, deleteAnnonce } = require('./m
 const { listProposition } = require('./middleware/proposition')
 const { listPret } = require('./middleware/pret')
 const { listEmprunt } = require('./middleware/emprunt')
-const { fetchtoecobank } = require('./middleware/ecobank')
-const { getUser, editUser, editPassword, refilUserAccount, addSignature, getSignature, showContrat, toPropose, deleteProposition, resToPropose } = require('./middleware/user')
+const { fetchtoecobank, getbankaccount } = require('./middleware/ecobank')
+const { getUser, editUser, editPassword, refilUserAccount, addSignature, getSignature, showContrat, toPropose, deleteProposition, resToPropose, refilBankAccount, showPayment, makePayment } = require('./middleware/user')
 const { VerifyToken } = require('./middleware/verifyToken')
 const jwt = require('jsonwebtoken')
 const cors = require('cors');
@@ -154,7 +154,7 @@ app.post('/apoloanapi/login',login,(req,res)=>{})
 const checkconttat = (req,res,next) =>{
     const URL = req.query.urltemp
     jwt.verify(URL, process.env.SECRET_TOKEN_CONTRAT, (err, data)=>{
-        if(err) return res.send('error')
+        if(err) return res.send('Ce contrat a expiré la période de validité est 2 jours')
         req.var = data
         if(data) next()
         else return res.send('Access denied')
@@ -179,32 +179,7 @@ app.use('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
     });
 });
 
-/**
- * @swagger
- * /apoloanapi/contrat:
- *   get:
- *     tags:
- *     - "Contrat"
- *     summary: Affiche le contrat 
- *     description: Ce lien est utilisé pour afficher le contrat
- *     security:
- *      - bearerAuth: [] 
- *     parameters:
- *      - in: body
- *        name: body
- *        description: Paramètre d'affichage
- *        schema:
- *         type: object
- *         properties:
- *           IDCONTRAT:
- *              type: integer 
- *        required: true
- *     responses:
- *       201:
- *         description: Affichage du contrat
- */
 app.get('/apoloanapi/contrat',showContrat,(req,res)=>{})
-
 
 app.get('/apoloanapi/signature',VerifyToken,(req,res)=>{
     res.render('pages/signature/index',{
@@ -249,6 +224,85 @@ app.post("/upload_files", upload.single("file") , function (req, res) {});
  *         description: Votre compte apoloan a été activé
  */
 app.post('/apoloanapi/fetchtoecobank',fetchtoecobank,(req,res)=>{})
+
+//
+/**
+ * @swagger
+ * /apoloanapi/makepayment:
+ *   post:
+ *     tags:
+ *     - "Versement"
+ *     summary: Effectuer un versement
+ *     description: Ce lien est utilisé pour effectuer un versement pour pret
+ *     security:
+ *      - bearerAuth: [] 
+ *     parameters:
+ *      - in: body
+ *        name: body
+ *        description: Paramètre
+ *        schema:
+ *         type: object
+ *         properties:
+ *           IDPAYMENT:
+ *              type: integer 
+ *        required: true
+ *     responses:
+ *       201:
+ *         description: Affichage du compte
+ */
+app.post('/apoloanapi/makepayment',makePayment,(req,res)=>{})
+
+/**
+ * @swagger
+ * /apoloanapi/showpayment:
+ *   post:
+ *     tags:
+ *     - "Versement"
+ *     summary: Envoie les informations sur les versements par rapport a une transaction
+ *     description: Ce lien est utilisé pour afficher les versements
+ *     security:
+ *      - bearerAuth: [] 
+ *     parameters:
+ *      - in: body
+ *        name: body
+ *        description: Paramètre d'affichage
+ *        schema:
+ *         type: object
+ *         properties:
+ *           IDTRANSACTION:
+ *              type: integer 
+ *        required: true
+ *     responses:
+ *       201:
+ *         description: Affichage du compte
+ */
+app.post('/apoloanapi/showpayment',showPayment,(req,res)=>{})
+
+/**
+ * @swagger
+ * /apoloanapi/getbankaccount:
+ *   post:
+ *     tags:
+ *     - "Bank"
+ *     summary: Envoie les informations sur le compte bancaire
+ *     description: Ce lien est utilisé pour afficher le compte en banque
+ *     security:
+ *      - bearerAuth: [] 
+ *     parameters:
+ *      - in: body
+ *        name: body
+ *        description: Paramètre d'affichage
+ *        schema:
+ *         type: object
+ *         properties:
+ *           id:
+ *              type: integer 
+ *        required: true
+ *     responses:
+ *       201:
+ *         description: Affichage du compte
+ */
+app.post('/apoloanapi/getbankaccount',getbankaccount,(req,res)=>{})
 
 /**
  * @swagger
@@ -369,8 +423,8 @@ app.post('/apoloanapi/annonce/create',createAnnonce,(req,res)=>{})
  * /apoloanapi/useraccount/refil:
  *   post:
  *     tags:
- *     - "User"
- *     summary: Se recharger 
+ *     - "Bank"
+ *     summary: Recharger le solde
  *     description: Ce lien est utilisé pour recharger le solde de l'utilisateur
  *     security:
  *      - bearerAuth: []  
@@ -389,7 +443,33 @@ app.post('/apoloanapi/annonce/create',createAnnonce,(req,res)=>{})
  *       201:
  *         description: Rechargement effectué
  */
-app.post('/apoloanapi/useraccount/refil',refilUserAccount,(req,res)=>{})
+app.post('/apoloanapi/useraccount/refil',refilUserAccount,(req,res)=>{}) 
+
+/**
+ * @swagger
+ * /apoloanapi/useraccount/refilbankaccount:
+ *   post:
+ *     tags:
+ *     - "Bank"
+ *     summary: Recharger le solde en banque
+ *     description: Ce lien est utilisé pour recharger le solde en banque
+ *     security:
+ *      - bearerAuth: []  
+ *     parameters:
+ *      - in: body
+ *        name: body
+ *        description: object
+ *        schema:
+ *         type: object
+ *         properties:
+ *           montant:
+ *              type: integer
+ *        required: true
+ *     responses:
+ *       201:
+ *         description: Rechargement effectué
+ */
+app.post('/apoloanapi/useraccount/refilbankaccount',refilBankAccount,(req,res)=>{})
 
 /**
  * @swagger

@@ -1,9 +1,11 @@
-const { User, Compte, Annonce, Contrat, Proposition, Transaction } = require('../models')
+const { User, Compte, Annonce, Contrat, Proposition, Transaction, Versement } = require('../models')
 const { VerifyToken } = require('./verifyToken')
+const fetch = require('node-fetch');
 const bcrypt = require('bcrypt')
 const uuid = require('uuid')
 const jwt = require('jsonwebtoken')
 const { Op } = require("sequelize");
+require('dotenv').config()
 
 const getUser = async (req,res,next) =>{
     VerifyToken(req,res,next)
@@ -122,12 +124,41 @@ const refilUserAccount = async (req,res,next) =>{
     if(!user) return res.status(400).json({'error':'Erreur interne'})
     const IDUSER = req.user.id
 
-    /**
-     * ici seront les fonctions de vérification du solde de la carte bancaire 
-     * en fonction du montant de rechargement demandé
-     * pour l'instant nous nous contentons de recharger le solde directement a partir du montant demandé 
-     * sans vérification
-     */
+    try {
+        const userFound = await User.findOne({where: {id: IDUSER}})
+        if(!userFound) return res.status(400).json({'error' : 'Erreur interne'})
+
+        const userAccount = await Compte.findOne({where: {id: userFound.idCompte}})
+        if(!userAccount) return res.status(400).json({'error' : 'Le compte a une erreur'})
+        console.log(userAccount)
+
+        fetch(`${process.env.BANK_ADDRESS}/ecobank/api/debitbalance`, {
+            method: 'POST',
+            body: JSON.stringify({id : userAccount.idbankaccount, amount: montant}),
+            headers: { 'Content-Type': 'application/json' }
+        }).then(res => res.json())
+        .then(async response => {
+            if(response.error) return res.status(400).json(response)
+            if(response.success){
+                userAccount.solde += montant;
+                await userAccount.save()
+                return res.status(200).json(response)
+            }
+        })
+        .catch(err => console.log(err));
+
+    } catch (error) {
+        return res.status(400).json({'error' : 'Erreur interne'})
+    }
+}
+
+const refilBankAccount = async (req,res,next) =>{
+    const { montant } = req.body
+    VerifyToken(req,res,next)
+
+    const user = req.user
+    if(!user) return res.status(400).json({'error':'Erreur interne'})
+    const IDUSER = req.user.id
 
     try {
         const userFound = await User.findOne({where: {id: IDUSER}})
@@ -135,11 +166,22 @@ const refilUserAccount = async (req,res,next) =>{
 
         const userAccount = await Compte.findOne({where: {id: userFound.idCompte}})
         if(!userAccount) return res.status(400).json({'error' : 'Le compte a une erreur'})
+        if(userAccount.solde < montant) return res.status(400).json({'error' : 'Le solde du compte est insuffisant pour effectuer ce rechargement'})
 
-        userAccount.solde += montant
-
-        await userAccount.save()
-        return res.status(200).json({'Rechargement effectué: ' : userAccount})
+        fetch(`${process.env.BANK_ADDRESS}/ecobank/api/creditbalance`, {
+            method: 'POST',
+            body: JSON.stringify({id : userAccount.idbankaccount, amount: montant}),
+            headers: { 'Content-Type': 'application/json' }
+        }).then(res => res.json())
+        .then(async response => {
+            if(response.error) return res.status(400).json(response)
+            if(response.success){
+                userAccount.solde -= montant;
+                await userAccount.save()
+                return res.status(200).json(response)
+            }
+        })
+        .catch(err => console.log(err));
 
     } catch (error) {
         return res.status(400).json({'error' : 'Erreur interne'})
@@ -378,15 +420,19 @@ const resToPropose = async(req,res,next) =>{
                 if(!userContributeur || !userEmprunteur) return res.status(200).json({'error':'Erreur interne'})
        
                 // on vérifie le solde du contributeur
-                if(userContributeur.dataValues.Compte.solde < annonce.montant ) return res.status(200).json({'error' : 'Impossible d\'effectuer cette transaction solde insuffisant'})
+                console.log('usersolde: ',userContributeur.Compte.solde)
+                if(userContributeur.Compte.solde < annonce.montant ) return res.status(200).json({'error' : 'Impossible d\'effectuer cette transaction solde insuffisant'})
 
                 // on crédite le compte de l'emprunteur et débite le compte du contributeur
-                userEmprunteur.dataValues.Compte.solde += annonce.montant
-                userContributeur.dataValues.solde -= annonce.montant
+                const emprunteurAccount = await Compte.findOne({where:{id: userEmprunteur.idCompte}})
+                const contributeurAccount = await Compte.findOne({where:{id: userContributeur.idCompte}})
+
+                emprunteurAccount.solde += annonce.montant
+                contributeurAccount.solde -= annonce.montant
 
                 await annonce.save()
-                await userContributeur.save()
-                await userEmprunteur.save()
+                await emprunteurAccount.save()
+                await contributeurAccount.save()
 
                 const saveTrs = await Transaction.create({
                     idContributeur : IDUSER,
@@ -400,7 +446,7 @@ const resToPropose = async(req,res,next) =>{
                 // save payment
                 await makePaymentField(annonce,saveTrs)
 
-                const delprop = proposition.destroy({where : {idAnnonce : proposition.idAnnonce}})
+                const delprop = await Proposition.destroy({where : {idAnnonce : proposition.idAnnonce}})
                 if(!delprop) return res.status(200).json({'error':'Opération impossible'})
 
                 return res.status(200).json({'error':'Opération réussite'})
@@ -455,19 +501,76 @@ const showContrat = async (req,res,next) =>{
 }
 
 const makePayment = async (req,res,next) =>{
-    const { IDTRANSACTION , VERSEMENT } = req.body
     VerifyToken(req,res,next)
-    
+    const { IDPAYMENT } = req.body
+
     const user = req.user
     if(!user) return res.status(400).json({'error':'Erreur interne'})
-    const IDUSER = req.user.id // IDUSER utilisateur en cour ...
 
     try {
-      
+        const versement = await Versement.findOne({
+            where : {id: IDPAYMENT}
+        })
+        if(!versement) res.status(400).json({'error' : 'Erreur interne'})
 
+        const usr = await User.findOne({where: {id: user.id}})
+        if(!usr) res.status(400).json({'error' : 'Erreur interne'})
+
+        const transaction = await Transaction.findOne({where: {id : versement.idTransaction}})
+        if(!transaction) res.status(400).json({'error' : 'Erreur interne'})
+
+        const usrContrib = await User.findOne({where: {id: transaction.idContributeur}})
+        if(!usrContrib) res.status(400).json({'error' : 'Erreur interne'})
+
+        const userAccount = await Compte.findOne({where: {id: usr.idCompte}})
+        if(!userAccount) res.status(400).json({'error' : 'Erreur interne'})
+
+        const contribAccount = await Compte.findOne({where: {id: usrContrib.idCompte}})
+        if(!contribAccount) res.status(400).json({'error' : 'Erreur interne'})
+
+        if(versement.montantAVerser > userAccount.solde) res.status(400).json({'error' : 'Votre solde est insuffisant pour effectuer ce remboursement'})
+
+        userAccount.solde -= versement.montantAVerser;
+        versement.montantVerser = versement.montantAVerser;
+        contribAccount.solde += versement.montantAVerser;
+
+        await userAccount.save()
+        await versement.save()
+        await contribAccount.save()
+
+        res.status(200).json({'success' : 'Votre versement a été effectué'})
     } catch (error) {
         return res.status(400).json({'error' : 'Erreur interne'})
     }
 }
 
-module.exports = { getUser , editUser, editPassword, refilUserAccount, addSignature, getSignature, showContrat, toPropose, deleteProposition, resToPropose }
+const showPayment = async(req,res,next) =>{
+    VerifyToken(req,res,next)
+    const { IDTRANSACTION } = req.body
+    
+    try {
+        const versement = await Versement.findAll({
+            where:{
+                [Op.and]: [
+                    { idTransaction: IDTRANSACTION }, 
+                    { montantVerser: {                         
+                            [Op.eq]: null,   
+                        } 
+                    }
+                ]
+            },
+            order: [
+                ['vieme', 'ASC'],
+            ],
+            limit : 1
+        })
+        if(!versement) return res.status(400).json({'error':'Erreur interne'})
+        return res.status(200).json({'success': versement})
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({'error':'Erreur interne'})
+    }
+
+}
+
+module.exports = { getUser , editUser, editPassword, refilUserAccount, addSignature, getSignature, showContrat, toPropose, deleteProposition, resToPropose, refilBankAccount, showPayment, makePayment }

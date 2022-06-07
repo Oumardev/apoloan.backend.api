@@ -43,4 +43,26 @@ const fetchtoecobank = async (req,res,next) =>{
     .catch(err => console.log(err));
 }
 
-module.exports ={ fetchtoecobank }
+const getbankaccount = async (req,res,next) =>{
+    VerifyToken(req,res,next)
+    const user = req.user
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
+
+    const cpt = await Compte.findOne({where:{id: user.idCompte}})
+    if(!cpt) return res.status(401).json({'error' : 'Erreur interne'})
+    if(!cpt.idbankaccount) res.status(401).json({'error' : 'Ce compte n\'est pas activée'})
+   
+    console.log(`id: ${cpt.idbankaccount}`)
+    fetch(`${process.env.BANK_ADDRESS}/ecobank/api/getbankaccount`, {
+        method: 'POST',
+        body: JSON.stringify({id: cpt.idbankaccount}),
+        headers: { 'Content-Type': 'application/json' }
+    }).then(res => res.json())
+    .then(async response => {
+        if(response.error) return res.status(401).json(response)
+        if(response.success) return res.status(200).json(response)
+    })
+    .catch(err => console.log(err));
+}
+
+module.exports ={ fetchtoecobank, getbankaccount }
