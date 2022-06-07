@@ -74,7 +74,7 @@ const swaggerOptions = {
         
     },
 
-    apis: ["index.js"],
+    apis: ["apoloanapi.js"],
 };
 
 var options = {
@@ -382,6 +382,34 @@ app.post('/apoloanapi/topropose',toPropose,(req,res)=>{})
  */
 app.delete('/apoloanapi/deleteproposition',deleteProposition,(req,res)=>{})
 
+/**
+ * @swagger
+ * /apoloanapi/restopropose:
+ *   post:
+ *     tags:
+ *     - "Proposition"
+ *     summary: Répondre a une proposition 
+ *     description: Ce lien est utilisé pour répondre a une proposition
+ *     security:
+ *      - bearerAuth: [] 
+ *     parameters:
+ *      - in: body
+ *        name: body
+ *        description: Paramètre
+ *        schema:
+ *         type: object
+ *         properties:
+ *           IDPROPOSANT:
+ *              type: integer
+ *           IDANNONCE:
+ *              type: integer
+ *           RESPONSE:
+ *              type: string
+ *        required: true
+ *     responses:
+ *       200:
+ *         description: La réponse a été envoyé
+ */
 app.post('/apoloanapi/restopropose',VerifyToken,resToPropose,(req,res)=>{})
 
 /**
