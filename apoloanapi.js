@@ -46,12 +46,12 @@ const swaggerOptions = {
     swaggerDefinition: {
       info: {
         title: "APOLOAN API DOCUMENTATION",
-        version: '2.0.1',
+        version: '3.2.0',
         description : 'Apoloan est une plateforme Peer to Peer qui permet aux membres d\'accéder ou fournir facilement des fonds à court terme pour des besoins immédiats de facon discrèt et sécurisée.',
         url: "http://www.oumardev.com",
         contact: {
-            name: "Oumar CISSE", // your name
-            url: "http://www.oumardev.com", // your website
+            name: "Oumar CISSE",
+            url: "http://www.oumardev.com", 
         },
         licence:{
             name: "oumar ccisse",
@@ -60,7 +60,7 @@ const swaggerOptions = {
       },
         servers: [
             {
-                url: `http://oumardev.com`
+                url: `http://www.oumardev.com`
             }
         ],
         securityDefinitions: {

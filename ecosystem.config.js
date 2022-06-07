@@ -2,7 +2,7 @@ require('dotenv').config()
 
 module.exports = {
   apps : [{
-    script: 'index.js',
+    script: 'apoloanapi.js',
     watch: true,
       env: {
         "PORT": 1000,
