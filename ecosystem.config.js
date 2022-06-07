@@ -31,7 +31,7 @@ module.exports = {
     production : {
       user : process.env.USER_SERVER,
       host : "86.107.197.161",
-      ref  : 'origin/master',
+      ref  : 'origin/ currentwork',
       repo : 'git@github.com:Oumardev/apoloan.backend.api.git',
       path : process.env.PATH_DEPLOY,
       'post-deploy' : 'npm install'
