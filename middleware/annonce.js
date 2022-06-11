@@ -93,8 +93,7 @@ const listPost = async (req,res,next) =>{
                 codeUser: {                         
                     [Op.eq]: user.id,   
                 }
-            },
-            include: User
+            }
         })
 
         return res.status(200).json({'list': list,})   
