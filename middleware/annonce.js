@@ -19,7 +19,6 @@ const generatePercent = (duree,payment,montant)=>{
 }
 
 const createAnnonce = async (req,res,next) =>{
-    VerifyToken(req,res,next)
     const user = req.user
     if(!user) return res.status(401).json({'error':'Erreur interne'})
 
@@ -63,37 +62,19 @@ const listAnnonce = async (req,res,next) =>{
     if(!user) return res.status(401).json({'error':'Erreur interne'})
 
     try {
-        const listPret = await Annonce.findAll({
+        const list = await Annonce.findAll({
             where: {
                 codeUser: {                         
                     [Op.ne]: user.id,   
                 },
                 isVisible:{
                     [Op.eq] : true
-                },
-                type:{
-                    [Op.eq] : 'PRET'
                 }
             },
             include: User
         })
 
-        const listEmprunt = await Annonce.findAll({
-            where: {
-                codeUser: {                         
-                    [Op.ne]: user.id,   
-                },
-                isVisible:{
-                    [Op.eq] : true
-                },
-                type:{
-                    [Op.eq] : 'EMPRUNT'
-                }
-            },
-            include: User
-        })
-
-        return res.status(200).json({'pret': listPret, 'emprunt': listEmprunt})   
+        return res.status(200).json({'list': list,})   
         
     } catch (error) {
         return res.status(401).json({'error':'Erreur interne',error})   

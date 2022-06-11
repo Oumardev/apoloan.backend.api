@@ -429,12 +429,10 @@ app.post('/apoloanapi/restopropose',VerifyToken,resToPropose,(req,res)=>{})
  *        schema:
  *         type: object
  *         properties:
- *           types:
+ *           type:
  *              type: string 
  *           duree:
  *              type: string
- *           pourcentage:
- *              type: integer
  *           montant:
  *              type: integer
  *           modalitePaiement:
@@ -444,7 +442,7 @@ app.post('/apoloanapi/restopropose',VerifyToken,resToPropose,(req,res)=>{})
  *       201:
  *         description: L'annonce a été créé
  */
-app.post('/apoloanapi/annonce/create',createAnnonce,(req,res)=>{})
+app.post('/apoloanapi/annonce/create',VerifyToken,createAnnonce,(req,res)=>{})
 
 /**
  * @swagger
@@ -675,7 +673,7 @@ app.get('/apoloanapi/emprunt/list',listEmprunt,(req,res)=>{})
  *                   solde:
  *                      type: integer
  */
-app.get('/apoloanapi/user',getUser,(req,res)=>{})
+app.get('/apoloanapi/user',VerifyToken,getUser,(req,res)=>{})
 
 /**
  * @swagger

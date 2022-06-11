@@ -19,7 +19,7 @@ module.exports = {
         "PORT": 1000,
         "NODE_ENV": "production",
         "SECRET_TOKEN" : "7LJ3H4@3NBVVEYHDBDGG63JHDU3]J76CVUHDJ3@@@#293@3DHHDHHDDD",
-        "ADDRESS" : "86.107.197.161",
+        "ADDRESS" : "127.0.0.1",
         "USERNAME_DB" : "apoloandba",
         "PASSWD_DB" : "apoloan_283@2000",
         "DB_NAME" : "apoloandb",
@@ -30,7 +30,7 @@ module.exports = {
   deploy : {
     production : {
       user : process.env.USER_SERVER,
-      host : "86.107.197.161",
+      host : "127.0.0.1",
       ref  : 'origin/currentwork',
       repo : 'git@github.com:Oumardev/apoloan.backend.api.git',
       path : process.env.PATH_DEPLOY,

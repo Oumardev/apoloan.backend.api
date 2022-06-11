@@ -8,7 +8,6 @@ const { Op } = require("sequelize");
 require('dotenv').config()
 
 const getUser = async (req,res,next) =>{
-    VerifyToken(req,res,next)
 
     const user = req.user
     if(!user) return res.status(400).json({'error':'Erreur interne'})

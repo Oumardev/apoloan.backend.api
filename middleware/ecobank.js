@@ -6,7 +6,7 @@ require('dotenv').config()
 const fetchtoecobank = async (req,res,next) =>{
     VerifyToken(req,res,next)
     const user = req.user
-
+ 
     if(!user) return res.status(401).json({'error':'Erreur interne'})
 
     const { CardNumber, Name, Expiry, CVV } = req.body
@@ -20,7 +20,7 @@ const fetchtoecobank = async (req,res,next) =>{
     }).then(res => res.json())
     .then(async response => {
         if(response.error){
-            return res.status(401).json(response)
+            return res.status(400).json(response)
         }
         
         if(response.idbankaccount){
