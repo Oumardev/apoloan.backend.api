@@ -830,7 +830,8 @@ app.patch('/apoloanapi/password',editPassword,(req,res)=>{})
  *       201:
  *         description: Annonce supprimé
  */
-app.delete('/apoloanapi/annonce',deleteAnnonce,(req,res)=>{})
+app.post('/apoloanapi/annonce',VerifyToken,deleteAnnonce,(req,res)=>{})
+
     const server = app.listen(process.env.PORT, process.env.ADDRESS,async()=>{
     try {
         await sequelize.authenticate()

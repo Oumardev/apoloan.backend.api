@@ -113,8 +113,6 @@ const patchAnnonce = async (req,res,next) =>{
 
     if( !idAnnonce || !duree || !modalitePaiement || !montant ) return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
 
-    if( duree.replace(/\s/g, '')=='' ) return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
-     
     // on génère le pourcentage 
     var pourcentage = generatePercent(duree,modalitePaiement,montant)
 
@@ -140,7 +138,6 @@ const patchAnnonce = async (req,res,next) =>{
 }
 
 const deleteAnnonce = async (req,res,next) =>{
-    VerifyToken(req,res,next)
 
     const user = req.user
     if(!user) return res.status(401).json({'error':'Erreur interne'})
