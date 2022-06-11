@@ -20,7 +20,7 @@ const listProposition = async (req,res,next) =>{
             },
             include : [User, Contrat, Annonce]
         })
-        console.log('propos',proposition)
+     
         if(!proposition) return res.status(401).json({'error':'Aucune proposition pour cette annonce'})
 
         return res.status(200).json({'list': proposition})   

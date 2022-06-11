@@ -277,8 +277,8 @@ const toPropose = async (req,res,next) =>{
 
 const deleteProposition = async (req,res,nest) =>{
     const { IDPROPOSITION } = req.body 
-    VerifyToken(req,res,next)
 
+    console.log('delete')
     const user = req.user
     if(!user) return res.status(400).json({'error':'Erreur interne'})
     
@@ -287,13 +287,11 @@ const deleteProposition = async (req,res,nest) =>{
         const prosdel = await Proposition.findOne({where : {id : IDPROPOSITION}})
         if(!prosdel) return res.status(400).json({'error':'Erreur interne'})
 
-        const contrat = await Contrat.destroy({where : {id : prosdel.idContrat}})
-        if(!contrat) return res.status(400).json({'error':'Erreur interne'})
-
-        await prosdel.destroy()
+        await Proposition.destroy({where : {id : IDPROPOSITION}})
 
         return res.status(200).json({'message':'La proposition a été supprimé'})
     } catch (error) {
+        console.log(error)
         return res.status(400).json({'error' : 'Erreur interne'})
     }
 }

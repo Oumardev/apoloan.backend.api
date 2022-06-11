@@ -380,7 +380,7 @@ app.post('/apoloanapi/topropose',toPropose,(req,res)=>{})
  *       200:
  *         description: La proposition a été supprimé
  */
-app.delete('/apoloanapi/deleteproposition',deleteProposition,(req,res)=>{})
+app.delete('/apoloanapi/deleteproposition',VerifyToken,deleteProposition,(req,res)=>{})
 
 /**
  * @swagger
@@ -830,7 +830,7 @@ app.patch('/apoloanapi/password',editPassword,(req,res)=>{})
  *       201:
  *         description: Annonce supprimé
  */
-app.post('/apoloanapi/annonce',VerifyToken,deleteAnnonce,(req,res)=>{})
+app.delete('/apoloanapi/annonce',VerifyToken,deleteAnnonce,(req,res)=>{})
 
     const server = app.listen(process.env.PORT, process.env.ADDRESS,async()=>{
     try {
