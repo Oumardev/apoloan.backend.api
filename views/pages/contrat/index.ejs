@@ -13,7 +13,7 @@
             const data = {IDPROPOSANT, IDANNONCE, RESPONSE}
 
             try {
-                const response = await axios.post('http://192.168.1.6:1000/apoloanapi/restopropose',data,{
+                const response = await axios.post('https://api.oumardev.com/apoloanapi/restopropose',data,{
                     headers: { Authorization: `Bear ${token}` }
                 })
                 window.location.replace("/");

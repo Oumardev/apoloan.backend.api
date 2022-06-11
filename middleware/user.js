@@ -482,7 +482,7 @@ const showContrat = async (req,res,next) =>{
     const { IDCONTRAT } = req.body 
 
     if(!IDCONTRAT) return res.status(400).json({'error':'Erreur interne'})
-    VerifyToken(req,res,next)
+   
     const user = req.user
     if(!user) return res.status(400).json({'error':'Erreur interne'})
 

@@ -32,20 +32,17 @@
                 const pdf = new File([doc.output("blob")], "filename.pdf", {  type: "pdf" }),
                 data = new FormData();
                 
-                axios.post('http://192.168.1.6:1000/apoloanapi/restopropose',send,{
+                axios.post('https://api.oumardev.com/apoloanapi/restopropose',send,{
                     headers: { Authorization: `Bear ${token}` }
                 })
                 .then(response => {
                     if(response.data.error) error.innerText = response.data.error
                     else {
                         data.append("file", pdf);
-                        axios.post('http://192.168.1.6:1000/upload_files',data)
+                        axios.post('https://api.oumardev.com/upload_files',data)
                     }
                 })
 
-                //window.location.replace("/");
-
-                
                 form.width(cache_width);  
             });  
         }  

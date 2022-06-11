@@ -179,7 +179,7 @@ app.use('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
     });
 });
 
-app.get('/apoloanapi/contrat',showContrat,(req,res)=>{})
+app.get('/apoloanapi/contrat',VerifyToken,showContrat,(req,res)=>{})
 
 app.get('/apoloanapi/signature',VerifyToken,(req,res)=>{
     res.render('pages/signature/index',{
