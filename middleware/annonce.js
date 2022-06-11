@@ -81,6 +81,29 @@ const listAnnonce = async (req,res,next) =>{
     }
 }
 
+const listPost = async (req,res,next) =>{
+    VerifyToken(req,res,next)
+    const user = req.user
+
+    if(!user) return res.status(401).json({'error':'Erreur interne'})
+
+    try {
+        const list = await Annonce.findAll({
+            where: {
+                codeUser: {                         
+                    [Op.eq]: user.id,   
+                }
+            },
+            include: User
+        })
+
+        return res.status(200).json({'list': list,})   
+        
+    } catch (error) {
+        return res.status(401).json({'error':'Erreur interne',error})   
+    }
+}
+
 const patchAnnonce = async (req,res,next) =>{
     VerifyToken(req,res,next)
     
@@ -132,4 +155,4 @@ const deleteAnnonce = async (req,res,next) =>{
 
 }
 
-module.exports = { createAnnonce , listAnnonce, patchAnnonce , deleteAnnonce }
+module.exports = { createAnnonce , listAnnonce, patchAnnonce , deleteAnnonce, listPost }

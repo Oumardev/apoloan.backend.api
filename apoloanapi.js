@@ -4,7 +4,7 @@ const bodyParser = require('body-parser')
 const app = express()
 require('dotenv').config()
 const { register, login } = require('./middleware/auth')
-const { createAnnonce, listAnnonce, patchAnnonce, deleteAnnonce } = require('./middleware/annonce')
+const { createAnnonce, listAnnonce, patchAnnonce, deleteAnnonce, listPost } = require('./middleware/annonce')
 const { listProposition } = require('./middleware/proposition')
 const { listPret } = require('./middleware/pret')
 const { listEmprunt } = require('./middleware/emprunt')
@@ -628,6 +628,43 @@ app.get('/apoloanapi/pret/list',listPret,(req,res)=>{})
  *                    type: string      
  */
 app.get('/apoloanapi/emprunt/list',listEmprunt,(req,res)=>{})
+
+/**
+ * @swagger
+ * /apoloanapi/post/list:
+ *   get:
+ *     tags:
+ *     - "Annonce"
+ *     summary: Liste des postes de l'utilisateur
+ *     description: Ce lien est utilisé pour afficher la liste des postes d'un utilisateur
+ *     security:
+ *      - bearerAuth: [] 
+ *     responses:
+ *       201:
+ *         description: Liste des postes
+ *         schema:
+ *          type: object
+ *          properties:
+ *              statut:
+ *                type: string
+ *              Contrat:
+ *                type: object
+ *                properties:
+ *                  nom:
+ *                    type: string
+ *              Annonce:
+ *                type: object
+ *                properties:
+ *                  duree:
+ *                    type: string
+ *                  pourcentage:
+ *                    type: integer
+ *                  montant:
+ *                    type: integer
+ *                  createdAt:
+ *                    type: string      
+ */
+ app.get('/apoloanapi/post/list',listPost,(req,res)=>{})
 
 /**
  * @swagger
