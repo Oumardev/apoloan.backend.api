@@ -3,6 +3,7 @@ const { VerifyToken } = require('./verifyToken')
 
 const listProposition = async (req,res,next) =>{
     const { IDANNONCE } = req.body 
+
     if(!IDANNONCE) return res.status(401).json({'error':'Erreur interne'})
 
     VerifyToken(req,res,next)
@@ -19,9 +20,10 @@ const listProposition = async (req,res,next) =>{
             },
             include : [User, Contrat, Annonce]
         })
+        console.log('propos',proposition)
         if(!proposition) return res.status(401).json({'error':'Aucune proposition pour cette annonce'})
 
-        return res.status(200).json({'success': proposition})   
+        return res.status(200).json({'list': proposition})   
     } catch (error) {
         console.log(error)
         return res.status(401).json({'error':'Erreur interne'})   

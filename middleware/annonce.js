@@ -109,12 +109,15 @@ const patchAnnonce = async (req,res,next) =>{
     const user = req.user
     if(!user) return res.status(401).json({'error':'Erreur interne'})
 
-    const { idAnnonce, duree, pourcentage, montant } = req.body
+    const { idAnnonce, duree, modalitePaiement, montant } = req.body
 
-    if( !idAnnonce || !duree || !pourcentage || !montant ) return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
+    if( !idAnnonce || !duree || !modalitePaiement || !montant ) return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
 
     if( duree.replace(/\s/g, '')=='' ) return res.status(401).json({'error' : 'Veuillez saisir tout les champs'})
      
+    // on génère le pourcentage 
+    var pourcentage = generatePercent(duree,modalitePaiement,montant)
+
     // vérifie si numéro contient des letttres
     if (!Number.isInteger(montant)) return res.status(401).json({'error' : 'Certaines informations ne doivent pas contenir des lettres'})
 
@@ -123,6 +126,7 @@ const patchAnnonce = async (req,res,next) =>{
         if(!annonce) return res.status(401).json({'error': "Cette annonce n'est pas valide"})
 
         annonce.duree = duree
+        annonce.modalitePaiement = modalitePaiement
         annonce.pourcentage = pourcentage
         annonce.montant = montant
 

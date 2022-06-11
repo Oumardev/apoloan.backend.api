@@ -732,8 +732,8 @@ app.get('/apoloanapi/user',VerifyToken,getUser,(req,res)=>{})
  *           idAnnonce:
  *              type: integer
  *           duree:
- *              type: string
- *           pourcentage:
+ *              type: integer
+ *           modalitePaiement:
  *              type: integer
  *           montant:
  *              type: integer
