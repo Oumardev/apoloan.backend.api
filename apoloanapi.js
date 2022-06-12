@@ -2,6 +2,7 @@ const express = require('express')
 const { sequelize, User } = require('./models')
 const bodyParser = require('body-parser')
 const app = express()
+const server = require('http').Server(app)
 require('dotenv').config()
 const { register, login } = require('./middleware/auth')
 const { createAnnonce, listAnnonce, patchAnnonce, deleteAnnonce, listPost } = require('./middleware/annonce')
@@ -13,6 +14,38 @@ const { getUser, editUser, editPassword, refilUserAccount, addSignature, getSign
 const { VerifyToken } = require('./middleware/verifyToken')
 const jwt = require('jsonwebtoken')
 const cors = require('cors');
+
+const io = require('socket.io')(server)
+
+function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+}
+
+var CLIENTS=[];
+io.on('connection', (ws) => {
+    ws.id = uuidv4();
+    CLIENTS.push(ws)
+
+    console.log('connect')
+    ws.emit('id',ws.id)
+    
+    ws.on('message', (messageAsString) => {
+      console.log(`New message ${messageAsString}`)
+    });
+
+    ws.on('qrcode', (data) => {
+        const wscli = CLIENTS.filter(item => item.id === data.qr)[0]
+        wscli.emit('status', data)
+    });
+
+    ws.on("close", () => {
+        console.log('session close')
+    });
+
+});
 
 app.use(cors())
 app.use(bodyParser.urlencoded({extended: true}))
@@ -161,15 +194,16 @@ const checkconttat = (req,res,next) =>{
     })
 }
 
-app.use('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
+app.get('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
     const data = req.var
     const signUser = await User.findOne({
         where: {id: req.user.id}, 
         attributes: ['id','signature'],
     })
+    if(!signUser) res.send('Error')
 
     if(!signUser.dataValues.signature) return res.send('Vous devez enregistrer une signature avant de commencer la suite de l\'opération')
-    console.log('data: ',data)
+
     res.render('pages/contrat/index',{
         'user': req.user,
         'proposant': data.data.proposant,
@@ -185,6 +219,10 @@ app.get('/apoloanapi/signature',VerifyToken,(req,res)=>{
     res.render('pages/signature/index',{
         'token' : req.token
     });
+});
+
+app.get('/apoloanapi/qrcode',(req,res)=>{
+    res.render('pages/qrCode/index');
 });
 
 app.post('/apoloanapi/addsignature',VerifyToken,addSignature,(req,res)=>{});
@@ -382,34 +420,6 @@ app.post('/apoloanapi/topropose',toPropose,(req,res)=>{})
  */
 app.delete('/apoloanapi/deleteproposition',VerifyToken,deleteProposition,(req,res)=>{})
 
-/**
- * @swagger
- * /apoloanapi/restopropose:
- *   post:
- *     tags:
- *     - "Proposition"
- *     summary: Répondre a une proposition 
- *     description: Ce lien est utilisé pour répondre a une proposition
- *     security:
- *      - bearerAuth: [] 
- *     parameters:
- *      - in: body
- *        name: body
- *        description: Paramètre
- *        schema:
- *         type: object
- *         properties:
- *           IDPROPOSANT:
- *              type: integer
- *           IDANNONCE:
- *              type: integer
- *           RESPONSE:
- *              type: string
- *        required: true
- *     responses:
- *       200:
- *         description: La réponse a été envoyé
- */
 app.post('/apoloanapi/restopropose',VerifyToken,resToPropose,(req,res)=>{})
 
 /**
@@ -832,7 +842,7 @@ app.patch('/apoloanapi/password',editPassword,(req,res)=>{})
  */
 app.delete('/apoloanapi/annonce',VerifyToken,deleteAnnonce,(req,res)=>{})
 
-    const server = app.listen(process.env.PORT, process.env.ADDRESS,async()=>{
+    server.listen(process.env.PORT, process.env.ADDRESS,async()=>{
     try {
         await sequelize.authenticate()
         console.log(`serveur en marche sur http://${process.env.ADDRESS}:${process.env.PORT}`)

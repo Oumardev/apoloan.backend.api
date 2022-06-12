@@ -10,7 +10,7 @@ const VerifyToken = (req,res,next) =>{
             req.token = token
             next()
         }else{
-            console.log("deny")
+            console.log("deny", err)
             res.send('Access denied').end()
         }
     })

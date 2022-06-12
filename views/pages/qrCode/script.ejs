@@ -1,0 +1,71 @@
+<script>
+    var qrcode = new QRCode(document.getElementById('qrcode'))
+
+    // Create WebSocket connection.
+    const socket = io('192.168.1.6:1000');
+
+    socket.on('id', function (event) {
+        qrcode.makeCode(event)
+    });
+
+    socket.on('status',async function(data){
+
+        const response = await axios.get(`http://192.168.1.6:1000${data.proposition.Contrat.document}`,{
+            headers: { Authorization: `Bear ${data.token}` }
+        })
+
+        var htmlcode = document.getElementById('htmlcode')
+        htmlcode.innerHTML = response.data
+
+        var form = $('.c12'),  
+        cache_width = form.width(),  
+        a4 = [595.28, 841.89];
+        var error = document.getElementById('error')
+        
+        var RESPONSE = 'accepter'
+        var IDPROPOSANT = data.proposition.User.id
+        var IDANNONCE = data.proposition.Annonce.id
+        const send = { IDPROPOSANT, IDANNONCE, RESPONSE }
+        getCanvas().then(async function(canvas) {  
+            var img = canvas.toDataURL("image/png"),  
+            doc = new jsPDF({  
+                unit: 'px',  
+                format: 'a3'  
+            });
+            
+            doc.addImage(img, 'JPEG', 20, 20);  
+
+            const pdf = new File([doc.output("blob")], "filename.pdf", {  type: "pdf" }),
+            datadoc = new FormData();
+                
+            
+            axios.post('http://192.168.1.6:1000/apoloanapi/restopropose',send,{
+                headers: { Authorization: `Bear ${data.token}` }
+            }).then(response => {
+                if(response.data.error){
+                    error.innerText = response.data.error
+                    htmlcode.innerHTML = ''
+                } 
+                else{
+                    error.innerText = response.data.success
+                    error.style.color = "green";
+                    htmlcode.innerHTML = ''
+                    datadoc.append("file", pdf);
+                    axios.post('http://192.168.1.6:1000/upload_files',datadoc)
+                    doc.save('Contrat.pdf');  
+                }
+            })
+
+            form.width(cache_width);  
+        });  
+
+        function getCanvas() {  
+            form.width((a4[1] * 1.33333) - 100).css('max-width', 'none');  
+            return html2canvas(form, {  
+                imageTimeout: 2000,  
+                removeContainer: true  
+            });  
+        }
+        
+    })
+</script>

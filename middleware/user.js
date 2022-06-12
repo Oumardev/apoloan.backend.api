@@ -297,8 +297,8 @@ const deleteProposition = async (req,res,nest) =>{
 }
 
 const resToPropose = async(req,res,next) =>{
+    console.log('res proposition')
     const { IDPROPOSANT ,IDANNONCE, RESPONSE } = req.body 
-    const user = req.user
     const IDUSER = req.user.id // IDUSER utilisateur en cour ...
     
     const makePaymentField = async (anc, trs)=> {
@@ -402,7 +402,7 @@ const resToPropose = async(req,res,next) =>{
                 const delprop = proposition.destroy({where : {idAnnonce : proposition.idAnnonce}})
                 if(!delprop) return res.status(200).json({'error':'Opération impossible'})
 
-                return res.status(200).json({'error':'Opération réussite'})
+                return res.status(200).json({'success':'Opération réussite'})
             }else{
                 // on débite le compte du contributeur et on crédite le compte de l'emprunteur
                 const userContributeur = await User.findOne({
@@ -446,7 +446,7 @@ const resToPropose = async(req,res,next) =>{
                 const delprop = await Proposition.destroy({where : {idAnnonce : proposition.idAnnonce}})
                 if(!delprop) return res.status(200).json({'error':'Opération impossible'})
 
-                return res.status(200).json({'error':'Opération réussite'})
+                return res.status(200).json({'success':'Opération réussite'})
             }
         }
 
