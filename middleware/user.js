@@ -220,7 +220,7 @@ const toPropose = async (req,res,next) =>{
         // on recherche pour voir si l'uilisateur a enregistré une signature dans sa table
         const usr = await User.findOne({ where : { id : IDUSER } })
         let contrat = null
-        if(!usr.signature) return res.status(400).json({'error':'Vous devez enregistrer une signature avant de commencer la suite de l\'opération'})
+        if(!usr.signature) return res.status(400).json({'errorsign':'Vous devez enregistrer une signature avant d\'effectuer cette proposition'})
         
         // on recherche si user a déja proposé a cette annonce
         const propst = await Proposition.findOne({

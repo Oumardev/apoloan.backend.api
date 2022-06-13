@@ -41,6 +41,12 @@ io.on('connection', (ws) => {
         wscli.emit('status', data)
     });
 
+    ws.on('savesign', (data) => {
+        const wscli = CLIENTS.filter(item => item.id === data.qr)[0]
+        
+        wscli.emit('pagesign', data)
+    });
+
     ws.on("close", () => {
         console.log('session close')
     });
@@ -215,10 +221,8 @@ app.get('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
 
 app.get('/apoloanapi/contrat',VerifyToken,showContrat,(req,res)=>{})
 
-app.get('/apoloanapi/signature',VerifyToken,(req,res)=>{
-    res.render('pages/signature/index',{
-        'token' : req.token
-    });
+app.get('/apoloanapi/signature',(req,res)=>{
+    res.render('pages/signature/index');
 });
 
 app.get('/apoloanapi/qrcode',(req,res)=>{

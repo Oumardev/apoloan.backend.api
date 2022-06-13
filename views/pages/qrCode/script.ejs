@@ -2,7 +2,7 @@
     var qrcode = new QRCode(document.getElementById('qrcode'))
 
     // Create WebSocket connection.
-    const socket = io('192.168.1.6:1000');
+    const socket = io('127.0.0.1:1000');
 
     socket.on('id', function (event) {
         qrcode.makeCode(event)
@@ -10,7 +10,7 @@
 
     socket.on('status',async function(data){
 
-        const response = await axios.get(`http://192.168.1.6:1000${data.proposition.Contrat.document}`,{
+        const response = await axios.get(`https://127.0.0.1:1000${data.proposition.Contrat.document}`,{
             headers: { Authorization: `Bear ${data.token}` }
         })
 
@@ -39,7 +39,7 @@
             datadoc = new FormData();
                 
             
-            axios.post('http://192.168.1.6:1000/apoloanapi/restopropose',send,{
+            axios.post('https://127.0.0.1:1000/apoloanapi/restopropose',send,{
                 headers: { Authorization: `Bear ${data.token}` }
             }).then(response => {
                 if(response.data.error){
@@ -51,7 +51,7 @@
                     error.style.color = "green";
                     htmlcode.innerHTML = ''
                     datadoc.append("file", pdf);
-                    axios.post('http://192.168.1.6:1000/upload_files',datadoc)
+                    axios.post('https://127.0.0.1:1000/upload_files',datadoc)
                     doc.save('Contrat.pdf');  
                 }
             })

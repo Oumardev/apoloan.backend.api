@@ -4,16 +4,13 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.min.js"></script> 
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     </head>
-<body onload="init()">
-    <p>Enregistrer votre signature </p>
-    <div style="display:flex; flex-direction: row;width:200px; height:200px">
-        <div style="display:flex; flex-direction: column;width:200px; height:200px">
-            <canvas id="can" width="200" height="200" style="border:2px solid;"></canvas>
-            <input type="button" value="Envoyer" id="btn" size="30" onclick="save()">
-            <input type="button" value="Reprendre" id="clr" size="23" onclick="erase()">
-        </div>
-        <img id="canvasimg" style="display:none;">
-    </div>
-    <%- include('script'); -%>
+    <title>Enregistrer une signature</title>
+<body>
+    <p style="color:red;font-size:20px;font-weight: 500;text-align: center;" id="error"></p>
+    <div id="qrcode" style="display: flex;justify-content: center;align-items: center;cursor:none;"></div>
+    <div id="htmlcode" style="justify-content: center;display: flex;align-items: center;padding: 65px;"></div>
 </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js" integrity="sha512-9mpsATI0KClwt+xVZfbcf2lJ8IFBAwsubJ6mI3rtULwyM3fBmQFzj0It4tGqxLOGQwGfJdk/G+fANnxfq9/cew==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<%- include('script'); -%>
 </html>
