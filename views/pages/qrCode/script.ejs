@@ -2,7 +2,7 @@
     var qrcode = new QRCode(document.getElementById('qrcode'))
 
     // Create WebSocket connection.
-    const socket = io('http://192.168.1.103:1000');
+    const socket = io('https://api.oumardev.com');
 
     socket.on('id', function (event) {
         qrcode.makeCode(event)
@@ -10,7 +10,7 @@
 
     socket.on('status',async function(data){
         console.log('status')
-        const response = await axios.get(`http://192.168.1.103:1000${data.proposition.Contrat.document}`,{
+        const response = await axios.get(`https://api.oumardev.com${data.proposition.Contrat.document}`,{
             headers: { Authorization: `Bear ${data.token}` }
         })
 
@@ -39,7 +39,7 @@
             datadoc = new FormData();
                 
             
-            axios.post('http://192.168.1.103:1000/apoloanapi/restopropose',send,{
+            axios.post('https://api.oumardev.com/apoloanapi/restopropose',send,{
                 headers: { Authorization: `Bear ${data.token}` }
             }).then(response => {
                 if(response.data.error){
@@ -51,7 +51,7 @@
                     error.style.color = "green";
                     htmlcode.innerHTML = ''
                     datadoc.append("file", pdf);
-                    axios.post('http://192.168.1.103:1000/upload_files',datadoc)
+                    axios.post('https://api.oumardev.com/upload_files',datadoc)
                     doc.save('Contrat.pdf');  
                 }
             })

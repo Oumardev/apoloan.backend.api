@@ -7,7 +7,7 @@
 
             toDataURL(dataURL, function(dataUrl) {
                 const data = {signature : dataURL}
-                axios.post('http://192.168.1.103:1000/apoloanapi/addsignature',data,{
+                axios.post('https://api.oumardev.com/apoloanapi/addsignature',data,{
                     headers: { Authorization: `Bear ${TOKEN}` }
                 })
             })
@@ -140,7 +140,7 @@
     var qrcode = new QRCode(document.getElementById('qrcode'))
 
     // Create WebSocket connection.
-    const socket = io('http://192.168.1.103:1000');
+    const socket = io('https://api.oumardev.com');
 
     socket.on('id', function (event) {
         qrcode.makeCode(event)
