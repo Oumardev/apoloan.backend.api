@@ -1,12 +1,14 @@
 <script>
-    function save(token) {
+    var TOKEN = null;
+
+    function save() {
             document.getElementById("canvasimg").style.border = "2px solid";
             var dataURL = canvas.toDataURL();
 
             toDataURL(dataURL, function(dataUrl) {
                 const data = {signature : dataURL}
                 axios.post('http://192.168.1.103:1000/apoloanapi/addsignature',data,{
-                    headers: { Authorization: `Bear ${token}` }
+                    headers: { Authorization: `Bear ${TOKEN}` }
                 })
             })
         
@@ -146,13 +148,14 @@
 
     socket.on('pagesign',async function(data){
 
+        TOKEN = data.token
         var htmlcode = document.getElementById('htmlcode')
         htmlcode.innerHTML = `
             <p>Dessiner votre signature dans la case</p>
             <div style="display:flex; flex-direction: row;width:200px; height:200px">
                 <div style="display:flex; flex-direction: column;width:200px; height:200px">
                     <canvas id="can" width="200" height="200" style="border:2px solid;"></canvas>
-                    <input type="button" value="Enregistrer" id="btn" size="30" onclick="save(${data.token})">
+                    <input type="button" value="Enregistrer" id="btn" size="30" onclick="save()">
                     <input type="button" value="Reprendre" id="clr" size="23" onclick="erase()">
                 </div>
                 <img id="canvasimg" style="display:none;">
