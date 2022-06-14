@@ -1,5 +1,6 @@
 <script>
     var TOKEN = null;
+    const ADRESSE = 'http://192.168.1.103:1000'  // or https://api.oumardev.com in production
 
     function save() {
             document.getElementById("canvasimg").style.border = "2px solid";
@@ -7,7 +8,7 @@
 
             toDataURL(dataURL, function(dataUrl) {
                 const data = {signature : dataURL}
-                axios.post('https://api.oumardev.com/apoloanapi/addsignature',data,{
+                axios.post(`${ADRESSE}/apoloanapi/addsignature`,data,{
                     headers: { Authorization: `Bear ${TOKEN}` }
                 })
             })
@@ -140,7 +141,7 @@
     var qrcode = new QRCode(document.getElementById('qrcode'))
 
     // Create WebSocket connection.
-    const socket = io('https://api.oumardev.com');
+    const socket = io(`${ADRESSE}`);
 
     socket.on('id', function (event) {
         qrcode.makeCode(event)

@@ -1,8 +1,8 @@
 <script>
     var qrcode = new QRCode(document.getElementById('qrcode'))
-
+    const ADRESSE = 'http://192.168.1.103:1000'  // or https://api.oumardev.com in production
     // Create WebSocket connection.
-    const socket = io('https://api.oumardev.com');
+    const socket = io(`${ADRESSE}`);
 
     socket.on('id', function (event) {
         qrcode.makeCode(event)
@@ -10,7 +10,7 @@
 
     socket.on('status',async function(data){
         console.log('status')
-        const response = await axios.get(`https://api.oumardev.com${data.proposition.Contrat.document}`,{
+        const response = await axios.get(`${ADRESSE}${data.proposition.Contrat.document}`,{
             headers: { Authorization: `Bear ${data.token}` }
         })
 
@@ -25,6 +25,7 @@
         var RESPONSE = 'accepter'
         var IDPROPOSANT = data.proposition.User.id
         var IDANNONCE = data.proposition.Annonce.id
+
         const send = { IDPROPOSANT, IDANNONCE, RESPONSE }
         getCanvas().then(async function(canvas) {  
             var img = canvas.toDataURL("image/png"),  
@@ -39,10 +40,11 @@
             datadoc = new FormData();
                 
             
-            axios.post('https://api.oumardev.com/apoloanapi/restopropose',send,{
+            axios.post(`${ADRESSE}/apoloanapi/restopropose`,send,{
                 headers: { Authorization: `Bear ${data.token}` }
             }).then(response => {
                 if(response.data.error){
+                    console.log('error' , response.data)
                     error.innerText = response.data.error
                     htmlcode.innerHTML = ''
                 } 
@@ -51,7 +53,7 @@
                     error.style.color = "green";
                     htmlcode.innerHTML = ''
                     datadoc.append("file", pdf);
-                    axios.post('https://api.oumardev.com/upload_files',datadoc)
+                    axios.post(`${ADRESSE}/upload_files`,datadoc)
                     doc.save('Contrat.pdf');  
                 }
             })

@@ -1,4 +1,6 @@
 <script>
+    const ADRESSE = 'http://192.168.1.103:1000'  // or https://api.oumardev.com in production
+
     $(document).ready(function () {  
         var form = $('.c12'),  
         cache_width = form.width(),  
@@ -32,14 +34,14 @@
                 const pdf = new File([doc.output("blob")], "filename.pdf", {  type: "pdf" }),
                 data = new FormData();
                 
-                axios.post('https://api.oumardev.com/apoloanapi/restopropose',send,{
+                axios.post(`${ADRESSE}/apoloanapi/restopropose`,send,{
                     headers: { Authorization: `Bear ${token}` }
                 })
                 .then(response => {
                     if(response.data.error) error.innerText = response.data.error
                     else {
                         data.append("file", pdf);
-                        axios.post('https://api.oumardev.com/upload_files',data)
+                        axios.post(`${ADRESSE}/upload_files`,data)
                     }
                 })
 

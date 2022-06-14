@@ -208,7 +208,10 @@ app.get('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
     })
     if(!signUser) res.send('Error')
 
-    if(!signUser.dataValues.signature) return res.send('Vous devez enregistrer une signature avant de commencer la suite de l\'opération')
+    if(!signUser.dataValues.signature){
+
+        return res.send('<p style="color:red;text-align:center">Vous devez enregistrer une signature avant de continuer l\'opération</p>')
+    }
 
     res.render('pages/contrat/index',{
         'user': req.user,
