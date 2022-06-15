@@ -236,6 +236,10 @@ app.get('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
 
 app.get('/apoloanapi/contrat',VerifyToken,showContrat,(req,res)=>{})
 
+app.get('/testconn',(req,res)=>{
+    return res.status(200).json({'success' : 'connected'})
+})
+
 app.get('/apoloanapi/signature',(req,res)=>{
     res.render('pages/signature/index');
 });
