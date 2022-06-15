@@ -1,5 +1,5 @@
 const express = require('express')
-const { sequelize, User } = require('./models')
+const { sequelize, User, Compte } = require('./models')
 const bodyParser = require('body-parser')
 const app = express()
 const server = require('http').Server(app)
@@ -14,8 +14,18 @@ const { getUser, editUser, editPassword, refilUserAccount, addSignature, getSign
 const { VerifyToken } = require('./middleware/verifyToken')
 const jwt = require('jsonwebtoken')
 const cors = require('cors');
-
 const io = require('socket.io')(server)
+
+const testtable = async()=>{
+    const userEmprunteur = await User.findOne({where: 
+        {id : 1 },
+        include : [Compte]
+    })
+    userEmprunteur.Compte.solde = 12000
+    const srvacc = await userEmprunteur.Compte.save()
+    console.log('soldesrv: ',srvacc)
+}
+
 
 function uuidv4() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {

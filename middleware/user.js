@@ -229,7 +229,7 @@ const toPropose = async (req,res,next) =>{
             },
             include : [User, Contrat, Annonce]
         })
-        if(propst) return res.status(400).json({'error':'Vous ne pouvez pas proposer sur cette annonce'})
+        if(propst) return res.status(400).json({'error':'Vous avez déja proposé sur cette annonce'})
         // on recherche le type de l'annonce 
         const annonce = await Annonce.findOne({where: {
             id : IDANNONCE
@@ -347,7 +347,6 @@ const resToPropose = async(req,res,next) =>{
             const annonce = await Annonce.findOne({where: {
                 id : proposition.idAnnonce
             }})
-            annonce.isVisible = false;
 
             if(annonce.type == 'EMPRUNT'){
                 // on débite le compte du contributeur et on crédite le compte de l'emprunteur
@@ -367,11 +366,12 @@ const resToPropose = async(req,res,next) =>{
 
                 // on crédite le compte de l'emprunteur et débite le compte du contributeur
                 userEmprunteur.Compte.solde += annonce.montant
-                userContributeur.solde -= annonce.montant
+                userContributeur.Compte.solde -= annonce.montant
+                annonce.isVisible = false;
 
                 await annonce.save()
-                await userContributeur.save()
-                await userEmprunteur.save()
+                await userContributeur.Compte.save()
+                await userEmprunteur.Compte.save()
 
                 const saveTrs = await Transaction.create({
                     idContributeur : proposition.idProposant,
@@ -402,20 +402,14 @@ const resToPropose = async(req,res,next) =>{
 
                 if(!userContributeur || !userEmprunteur) return res.status(200).json({'error':'Erreur interne'})
        
-                // on vérifie le solde du contributeur
-                console.log('usersolde: ',userContributeur.Compte.solde)
                 if(userContributeur.Compte.solde < annonce.montant ) return res.status(200).json({'error' : 'Impossible d\'effectuer cette transaction solde insuffisant'})
 
-                // on crédite le compte de l'emprunteur et débite le compte du contributeur
-                const emprunteurAccount = await Compte.findOne({where:{id: userEmprunteur.idCompte}})
-                const contributeurAccount = await Compte.findOne({where:{id: userContributeur.idCompte}})
-
-                emprunteurAccount.solde += annonce.montant
-                contributeurAccount.solde -= annonce.montant
+                emprunteurAccount.Compte.solde += annonce.montant
+                contributeurAccount.Compte.solde -= annonce.montant
 
                 await annonce.save()
-                await emprunteurAccount.save()
-                await contributeurAccount.save()
+                await emprunteurAccount.Compte.save()
+                await contributeurAccount.Compte.save()
 
                 const saveTrs = await Transaction.create({
                     idContributeur : IDUSER,
@@ -496,36 +490,37 @@ const makePayment = async (req,res,next) =>{
         })
         if(!versement)return res.status(400).json({'error' : 'Erreur interne'})
 
-        const usr = await User.findOne({where: {id: user.id}})
+        const usr = await User.findOne({
+            where: {id: user.id},
+            include : [Compte]
+        })
         if(!usr)return res.status(400).json({'error' : 'Erreur interne'})
 
         const transaction = await Transaction.findOne({where: {id : versement.idTransaction}})
         if(!transaction) return res.status(400).json({'error' : 'Erreur interne'})
 
-        const usrContrib = await User.findOne({where: {id: transaction.idContributeur}})
+        const usrContrib = await User.findOne({
+            where: {id: transaction.idContributeur},
+            include : [Compte]
+        })
         if(!usrContrib)return res.status(400).json({'error' : 'Erreur interne'})
 
-        const userAccount = await Compte.findOne({where: {id: usr.idCompte}})
-        if(!userAccount)return res.status(400).json({'error' : 'Erreur interne'})
-
-        const contribAccount = await Compte.findOne({where: {id: usrContrib.idCompte}})
-        if(!contribAccount)return res.status(400).json({'error' : 'Erreur interne'})
-
-        if(versement.montantAVerser > userAccount.solde) return res.status(401).json({'error' : 'Votre solde est insuffisant pour effectuer ce remboursement'}).end()
+        if(versement.montantAVerser > usr.Compte.solde) return res.status(401).json({'error' : 'Votre solde est insuffisant pour effectuer ce remboursement'}).end()
         else{
-            userAccount.solde -= versement.montantAVerser;
+            usr.Compte.solde -= versement.montantAVerser;
+            usrContrib.Compte.solde += versement.montantAVerser;
             versement.montantVerser = versement.montantAVerser;
-            contribAccount.solde += versement.montantAVerser;
     
-            await userAccount.save()
+            await usr.Compte.save()
+            await usrContrib.Compte.save()
             await versement.save()
-            await contribAccount.save()
     
             return res.status(200).json({'success' : 'Votre versement a été effectué'})
         }
        
     } catch (error) {
-        return res.status(400).json({'error' : 'Erreur interne'})
+        console.log(error)
+        return res.status(400).json({'error' : 'Erreur internes'})
     }
 }
 
