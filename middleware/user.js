@@ -187,10 +187,10 @@ const refilBankAccount = async (req,res,next) =>{
     }
 }
 
-const genContrat = async(req,res,usr,annonce) =>{
+const genContrat = async(req,res,usr,annonce,dateEch) =>{
     
     const user = req.user
-    const data = { 'proposant':usr.dataValues, 'annonce': annonce }
+    const data = { 'proposant':usr.dataValues, 'annonce': annonce, 'dateEcheance': dateEch }
 
     if(!user) return res.status(400).json({'error':'Erreur interne token invalide'})
     const linktoken = jwt.sign({data},process.env.SECRET_TOKEN_CONTRAT,{expiresIn : '2d'})
@@ -233,10 +233,11 @@ const toPropose = async (req,res,next) =>{
         // on recherche le type de l'annonce 
         const annonce = await Annonce.findOne({where: {
             id : IDANNONCE
-        }})            
+        }})
+
         if(annonce.type == 'EMPRUNT'){
             // on génère le contrat 
-            const docs = await genContrat(req,res,usr,annonce);
+            const docs = await genContrat(req,res,usr,annonce,makeDateEcheance(annonce));
 
             contrat = await Contrat.create({
                 document : docs,
@@ -246,7 +247,7 @@ const toPropose = async (req,res,next) =>{
             })
         }else{
             // on génère le contrat 
-            const docs = await genContrat(req,res,usr,annonce);
+            const docs = await genContrat(req,res,usr,annonce,makeDateEcheance(annonce));
 
             contrat = await Contrat.create({
                 document : docs,
@@ -469,7 +470,6 @@ const showContrat = async (req,res,next) =>{
     try {
         const contrat = await Contrat.findOne({where : {id:IDCONTRAT}})
         if(!contrat)return res.status(400).json({'error':'Ce contrat est introuvable'})    
-
 
         res.redirect(contrat.document);
     } catch (error) {

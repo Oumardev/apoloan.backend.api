@@ -219,16 +219,18 @@ app.get('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
     if(!signUser) res.send('Error')
 
     if(!signUser.dataValues.signature){
-
         return res.send('<p style="color:red;text-align:center">Vous devez enregistrer une signature avant de continuer l\'opération</p>')
     }
 
+    
     res.render('pages/contrat/index',{
         'user': req.user,
         'proposant': data.data.proposant,
-        'annonce' : data.data.annonce,
-        'sign' : signUser.dataValues.signature,
-        'token' : req.token
+        'annonce': data.data.annonce,
+        'dateEcheance': data.data.dateEcheance,
+        'date': new Date(),
+        'sign': signUser.dataValues.signature,
+        'token': req.token
     });
 });
 
