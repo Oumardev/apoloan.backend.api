@@ -16,17 +16,6 @@ const jwt = require('jsonwebtoken')
 const cors = require('cors');
 const io = require('socket.io')(server)
 
-const testtable = async()=>{
-    const userEmprunteur = await User.findOne({where: 
-        {id : 1 },
-        include : [Compte]
-    })
-    userEmprunteur.Compte.solde = 12000
-    const srvacc = await userEmprunteur.Compte.save()
-    console.log('soldesrv: ',srvacc)
-}
-
-
 function uuidv4() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -211,12 +200,20 @@ const checkconttat = (req,res,next) =>{
 }
 
 app.get('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
+    console.log('in cosnt')
     const data = req.var
+    
     const signUser = await User.findOne({
         where: {id: req.user.id}, 
         attributes: ['id','signature'],
     })
     if(!signUser) res.send('Error')
+
+    const signProposant = await User.findOne({
+        where: {id: data.data.proposant.id}, 
+        attributes: ['id','signature'],
+    })
+    if(!signProposant) res.send('Error')
 
     if(!signUser.dataValues.signature){
         return res.send('<p style="color:red;text-align:center">Vous devez enregistrer une signature avant de continuer l\'opération</p>')
@@ -227,9 +224,10 @@ app.get('/cosntr',VerifyToken,checkconttat,async (req,res)=>{
         'user': req.user,
         'proposant': data.data.proposant,
         'annonce': data.data.annonce,
-        'dateEcheance': data.data.dateEcheance,
+        'dateEcheance': new Date(),
         'date': new Date(),
         'sign': signUser.dataValues.signature,
+        'signProposant': signProposant.dataValues.signature,
         'token': req.token
     });
 });
@@ -868,7 +866,7 @@ app.delete('/apoloanapi/annonce',VerifyToken,deleteAnnonce,(req,res)=>{})
     server.listen(process.env.PORT, process.env.ADDRESS,async()=>{
     try {
         await sequelize.authenticate()
-        console.log(`serveur en marche sur http://${process.env.ADDRESS}:${process.env.PORT}`)
+        console.log(`serveur en marche sur http://${process.env.ADDRESS}:${process.env.PORT} ${new Date()}`)
     } catch (error) {
         console.log(error)
         console.log('error to connected server to database')

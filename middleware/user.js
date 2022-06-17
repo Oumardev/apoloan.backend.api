@@ -189,19 +189,21 @@ const refilBankAccount = async (req,res,next) =>{
 
 const genContrat = async(req,res,usr,annonce,dateEch) =>{
     
+    console.log('gencontrat ---! ')
+
     const user = req.user
-    const data = { 'proposant':usr.dataValues, 'annonce': annonce, 'dateEcheance': dateEch }
+    const data = { 'proposant': user, 'annonce': annonce.dataValues, 'dateEcheance': dateEch } 
 
     if(!user) return res.status(400).json({'error':'Erreur interne token invalide'})
-    const linktoken = jwt.sign({data},process.env.SECRET_TOKEN_CONTRAT,{expiresIn : '2d'})
+    const linktoken = jwt.sign({data},process.env.SECRET_TOKEN_CONTRAT,{expiresIn : '1h'})
+
+    console.log(linktoken)
 
     return `/cosntr?urltemp=${linktoken}`
 }
 
 const toPropose = async (req,res,next) =>{
-    /**
-     * popup : L'orsque vous enregistrer une signature vos contrats serons signé automatiquement l'orsque vous faites une proposition
-     */
+   
     const { IDANNONCE } = req.body 
     VerifyToken(req,res,next)
 

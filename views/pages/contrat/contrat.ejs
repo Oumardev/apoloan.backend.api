@@ -26,7 +26,7 @@
     <div style="display:flex;flex-direction: row;">
         <div>
             <% if (annonce.type == 'EMPRUNT') { %>
-                <img src="<%= proposant.signature %>">
+                <img src="<%= signProposant %>">
             <% } else { %>
                 <img src="<%= sign %>">
             <% } %>
@@ -34,7 +34,7 @@
         </div>
         <div>
             <% if (annonce.type == 'PRET') { %>
-                <img src="<%= proposant.signature %>">
+                <img src="<%= signProposant %>">
             <% } else { %>
                 <img src="<%= sign %>">
             <% } %>

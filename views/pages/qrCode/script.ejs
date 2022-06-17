@@ -9,11 +9,12 @@
     });
 
     socket.on('status',async function(data){
-        console.log('status')
+        
         const response = await axios.get(`${ADRESSE}${data.proposition.Contrat.document}`,{
             headers: { Authorization: `Bear ${data.token}` }
         })
 
+        console.log('response:',response)
         var htmlcode = document.getElementById('htmlcode')
         htmlcode.innerHTML = response.data
 
